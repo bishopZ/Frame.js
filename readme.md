@@ -6,7 +6,7 @@ Frame.js is a ...
 Why?
 ----------------
 
-Despite the benefits non-blocking asynchronous code execution that Javascript offers, endless chains of callback functions make for unreadable code, difficult to control applications.
+Despite the benefits of non-blocking asynchronous code execution in Javascript, endless chains of callback functions make for unreadable code and difficult to control applications.
 
 Synchronizing code execution not only becomes a useful tool in JS application design, but also provides a framework for debugging, unit testing and script modularity.
 
