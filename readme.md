@@ -3,6 +3,13 @@ Frame.js
 
 Frame.js is a ...  
 
+Why?
+----------------
+
+Despite the benefits non-blocking asynchronous code execution that Javascript offers, endless chains of callback functions make for unreadable code, difficult to control applications.
+
+Synchronizing code execution not only becomes a useful tool in JS application design, but also provides a framework for debugging, unit testing and script modularity.
+
 
 Library Loader
 ----------------
@@ -70,6 +77,9 @@ Custom Callback name:
 Debug vs Production Versions
 ----------------
 
+The debug version provides a basic unit testing and debugging suite. All of which is disabled from the production version.
+
+
 
 
 
@@ -82,4 +92,4 @@ http://creativecommons.org/licenses/by-sa/3.0/nl/
 Version
 -----------------
 0.1  
-+ noting yet
++ nothing yet
