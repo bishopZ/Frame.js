@@ -11,20 +11,20 @@
 */
 (function(global){
 
-	global.Frame = function(a, b){
-		if (typeof a == 'string') { TheKernal.require(a, b); }
-		if (typeof a == 'number') { setTimeout( function() { TheKernal(b); }, a); }
-		if (typeof a == 'function') { TheKernal.unit(a); }
-		if (a instanceof Array){ for(var v in a) { TheKernal(a[v], b); }; } 
-		if (typeof a == 'undefined') { TheKernal.next(); }
+	global.frame = function(a, b, c){
+		if (typeof a == 'string') { frame.require(a, b); }
+		if (typeof a == 'number') { setTimeout( function() { frame(b); }, a); }
+		if (typeof a == 'function') { frame.unit(a); }
+		if (a instanceof Array){ for(var v in a) { frame(a[v], b); }; } 
+		if (typeof a == 'undefined') { frame.next(); }
 	}
 
 	var _libs = [];
-	Frame.libs = function(){ return _libs; };
+	frame.libs = function(){ return _libs; };
 
-	Frame.require = function(){}
-	Frame.unit = 	function(){}
-	Frame.next = 	function(){}
-	Frame.init = 	function(){}
+	frame.require = function(){}
+	frame.unit = 	function(){}
+	frame.next = 	function(){}
+	frame.init = 	function(){}
 
 })(this);
