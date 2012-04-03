@@ -11,27 +11,32 @@
 */
 (function(global){
 
-	global.frame = function(a, b, c){
-		if (typeof a == 'string') { frame.require(a, b); }
-		if (typeof a == 'number') { setTimeout( function() { frame(b); }, a); }
-		if (typeof a == 'function') { frame.unit(a); }
-		if (a instanceof Array){ for(var v in a) { frame(a[v], b); }; } 
-		if (typeof a == 'undefined') { frame.next(); }
+	global.Frame = function(a, b, c){
+		if (typeof a == 'string') { Frame.lab(a, b); }
+		if (typeof a == 'number') { setTimeout( function() { Frame(b); }, a); }
+		if (typeof a == 'function') { Frame.unit(a); }
+		if (a instanceof Array){ for(var v in a) { Frame(a[v], b); }; } 
+		if (typeof a == 'undefined') { Frame.next(); }
 	}
 
 	var _libs = [];
-	frame.libs = function(){ return _libs; };
+	Frame.libs = 	function(){ return _libs; }; // return list of loaded libs
+	Frame.lib = 	function(){} // explicitly run $LAB
+	Frame.lab = 	function(){} // direct access to $LAB
 
-	frame.require = function(){}
-	frame.unit = 	function(){}
-	frame.next = 	function(){}
-	frame.init = 	function(){}
+	var _queue = [];
 
-	frame.debug = 1; // debug level
+	Frame.now = 	function(){} // prepend to queue
+	Frame.soon = 	function(){} // add function to queue
+	Frame.later = 	function(){} // run when queue is empty
 
-	frame.title = console.log; // function(){}
-	frame.log = console.log; // function(){}
-	frame.error = console.log; // function(){}
+	Frame.next = 	function(){} // go to next item in queue
+	Frame.init = 	function(){} // start Frame queue
+
+	Frame.debug = 0; // debug level
+	Frame.title = console.log; // function(){}
+	Frame.log = console.log; // function(){}
+	Frame.error = console.log; // function(){}
 
 	// Frame.debug = 0; // no titles
 	// Frame.debug = 1; // only titles & errors
