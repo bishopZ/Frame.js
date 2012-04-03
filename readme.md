@@ -79,7 +79,16 @@ Debug vs Production Versions
 
 The debug version provides a basic unit testing and debugging suite. All of which is disabled from the production version.
 
+Same as console.log, but get disabled in production version so that comments can be left in the code without being echoed to end users.
 
+	Frame.title('Building Navigation');
+
+A Debug level can be set for frame
+
+	Frame.debug = 0; // no titles
+	Frame.debug = 1; // only titles & errors
+	Frame.debug = 2; // titles, logs & errors
+	Frame.debug = 3; // titles, logs & errors, and additional start and stop messages
 
 
 

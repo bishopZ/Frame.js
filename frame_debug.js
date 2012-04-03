@@ -27,4 +27,16 @@
 	frame.next = 	function(){}
 	frame.init = 	function(){}
 
+	frame.debug = 1; // debug level
+
+	frame.title = console.log; // function(){}
+	frame.log = console.log; // function(){}
+	frame.error = console.log; // function(){}
+
+	// Frame.debug = 0; // no titles
+	// Frame.debug = 1; // only titles & errors
+	// Frame.debug = 2; // titles, logs & errors
+	// Frame.debug = 3; // titles, logs & errors, and additional start and stop messages
+
+
 })(this);
