@@ -1,14 +1,11 @@
 Frame.js
 ============
 
-Frame.js is a function sequencer and library loader for larger Javascript applications  
+Frame.js is a function sequencer and library loader for Javascript applications. 
 
-Why?
-----------------
+Despite the benefits of non-blocking asynchronous code execution in Javascript, endless chains of callback functions make for unreadable code and difficult to control applications. 
 
-Despite the benefits of non-blocking asynchronous code execution in Javascript, endless chains of callback functions make for unreadable code and difficult to control applications.
-
-Synchronizing code execution not only becomes a useful tool in JS application design, but also provides a framework for debugging, unit testing and script modularity.
+While many function sequencers exist like <a href="https://github.com/caolan/async">async</a>, <a href="https://github.com/substack/node-seq">Seq</a>, and <a href="https://github.com/it-ony/flow.js/blob/master/lib/flow.js">flow.js</a>, Frame is focused on sequential code execution, includes a library loader to mix-and-match between remote scripts, local scripts and functions, and provides a set of basic debugging and unit testing tools. All that and it clocks in at just over 8k.
 
 
 Library Loader
@@ -124,11 +121,11 @@ Debug vs Production Versions
 
 Load Frame in debug mode by calling the debug version:
 
-	<script type="text/javascript" src="/js/Frame_debug.js" />
+	<script type="text/javascript" src="/js/frame_debug.js"></script>
 
 Load Frame in production mode by calling the production version:
 
-	<script type="text/javascript" src="/js/Frame.js" />
+	<script type="text/javascript" src="/js/frame.js"></script>
 
 The debug version provides basic unit testing and debugging tools. All of which is disabled or silenced in the production version (replaced with empty functions). 
 

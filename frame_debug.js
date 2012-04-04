@@ -33,8 +33,11 @@
 			Frame.next.apply(null, arguments); 
 		}
 		else { 
-			arguments.unshift('Unidentified input: '); Frame.error.apply(null, arguments); 
+			arguments.unshift('Unidentified input: '); 
+			Frame.error.apply(null, arguments); 
+			return false;
 		}
+		return true;
 	}
 
 	///////////////////////////////////////////////////////
@@ -46,9 +49,9 @@
 	Frame.library = 	function(){ return _libs; }; // return list of loaded libs
 	Frame.lib =
 	Frame.load = 		function(a, b){  // explicitly run $LAB
-		var loaded = false;
-		for(var v in Frame._libs){ if (Frame._libs[v] === a) { loaded = true; } }
-		if (!loaded) {
+		var _loaded = false;
+		for(var v in Frame._libs){ if (Frame._libs[v] === a) { _loaded = true; } }
+		if (!_loaded) {
 			Frame(function(){ 
 				$LAB.script(a).wait( function(){ 
 					Frame._libs.push(a); 
@@ -84,22 +87,48 @@
 
 	// Machine Speed Test
 	Frame.speedTest = function (){
-		var ticks = 1;
-		var ticker = setInterval(function(){ ticks++; }, 1);
-		var speedTest = setTimeout(function(){
-			ticker = clearInterval(ticker); ticker = false;
-			Frame.machineSpeed = Math.ceil(Frame.testDuration/ticks);
+		var _ticks = 1;
+		var _ticker = setInterval(function(){ _ticks++; }, 1);
+		setTimeout(function(){
+			_ticker = clearInterval(_ticker); _ticker = false;
+			Frame.machineSpeed = Math.ceil(Frame.testDuration/_ticks);
 			if (Frame.machineSpeed < 1) { Frame.machineSpeed = 1; }
 			Frame.resetTimeout();
-			Frame.log('Speed test complete, Machine Speed: '+ Frame.machineSpeed + ', Timeout: '+ Frame.timeout);
-		}, testDuration);
+			console.log('Speed test complete, Machine Speed: '+ Frame.machineSpeed + ', Timeout: '+ Frame.timeout);
+		}, Frame.testDuration);
 	}
 
 	Frame.resetTimeout();
 	
+
 	///////////////////////////////////////////////////////
 	// Queue functions
+
 	var _queue = [];
+	var _keeper = false; // promise keeper
+	var _timer	= false; // unit test
+	var _speed	= false; // unit test
+	
+	Frame.started = false;
+	Frame.last = false;
+
+	var start = function(){
+		Frame.started = true; 
+		_speed = 0; 
+		_timer = clearInterval(_timer); _timer = false;
+		_keeper = clearInterval(_keeper); _keeper = false;
+		_keeper = setInterval(function(){
+			if (_speed > Frame.timeout){
+				Frame.error('Timed out, skipping ahead ', Frame.last);
+				Frame();
+			}
+		}, Frame.keeperDuration );
+	}
+
+	//...
+
+	var stop = function(){}
+
 
 	Frame.now = 	function(){} // prepend to queue
 	Frame.soon = 	function(){} // add function to queue
@@ -117,6 +146,7 @@
 	Frame.q =
 	Frame.queue =	function(){ return _queue; } // returns the existing queue
 	Frame.length = 	function(){ return _queue.length; } // returns length of the queue
+
 
 	///////////////////////////////////////////////////////
 	// Debug suite (debug version only)
