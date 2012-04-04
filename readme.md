@@ -28,11 +28,11 @@ Add a callback:
 		Frame();
 	});
 
-Get a list of loaded Libs
-(only includes those loaded with Frame)
+Get a list of loaded Libs (only includes those loaded with Frame)
 
 	console.log( Frame.libs() );
 
+TODO: make a scan of the <head> and see what <script> are already loaded.
 
 
 Sequencing
