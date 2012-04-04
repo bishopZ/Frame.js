@@ -30,7 +30,7 @@
 			for(var v in a) { arguments[0] = a[v]; Frame.apply(null, arguments); }; 
 		} 
 		else if (typeof a === 'undefined') { 
-			Frame.next(); 
+			Frame.next.apply(null, arguments); 
 		}
 		else { 
 			arguments.unshift('Unidentified input: '); Frame.error.apply(null, arguments); 
@@ -41,7 +41,7 @@
 	// Library loader
 
 	var _libs = [];
-	Frame.LAB = 		$LAB // direct access to $LAB
+	Frame.LAB = 		$LAB // direct access to $LAB, for convenience
 	Frame.libs = 
 	Frame.library = 	function(){ return _libs; }; // return list of loaded libs
 	Frame.lib =
@@ -82,20 +82,41 @@
 		return Frame.timeout;
 	}
 
-	//...
+	// Machine Speed Test
+	Frame.speedTest = function (){
+		var ticks = 1;
+		var ticker = setInterval(function(){ ticks++; }, 1);
+		var speedTest = setTimeout(function(){
+			ticker = clearInterval(ticker); ticker = false;
+			Frame.machineSpeed = Math.ceil(Frame.testDuration/ticks);
+			if (Frame.machineSpeed < 1) { Frame.machineSpeed = 1; }
+			Frame.resetTimeout();
+			Frame.log('Speed test complete, Machine Speed: '+ Frame.machineSpeed + ', Timeout: '+ Frame.timeout);
+		}, testDuration);
+	}
 
+	Frame.resetTimeout();
+	
 	///////////////////////////////////////////////////////
 	// Queue functions
 	var _queue = [];
 
 	Frame.now = 	function(){} // prepend to queue
 	Frame.soon = 	function(){} // add function to queue
+
+	Frame.end =
+	Frame.after =
 	Frame.later = 	function(){} // run when main queue is empty
 
 	Frame.next = 	function(){} // go to next item in queue
+	
+	Frame.begin =
+	Frame.start =
 	Frame.init = 	function(){} // start Frame queue
 
-	Frame.length = 	function(){ return _queue.length; } // logs length of existing queue
+	Frame.q =
+	Frame.queue =	function(){ return _queue; } // returns the existing queue
+	Frame.length = 	function(){ return _queue.length; } // returns length of the queue
 
 	///////////////////////////////////////////////////////
 	// Debug suite (debug version only)

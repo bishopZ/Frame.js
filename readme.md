@@ -32,7 +32,7 @@ Get a list of loaded Libs (only includes those loaded with Frame)
 
 	console.log( Frame.libs() );
 
-TODO: make a scan of the &lt;head&gt; and see what &lt;script&lt; are already loaded.
+TODO: make a scan of the &lt;head&gt; and see what &lt;script&gt; are already loaded.
 
 
 Sequencing
@@ -193,6 +193,12 @@ FAQ: How is Frame different that $().queue()?
 ----------------
 
 Actually Frame is very close to jQuery's queue in usage and purpose, but different in several specific ways. Better error handling, automatic queue recovery on script failures, and built-in unit testing mechanisms are a few examples.
+
+
+FAQ: How is Frame.lib() different that $LAB.script()?
+----------------
+
+$LAB is loaded with Frame, but using $LAB instead of Frame.lib() does not provide the advatages of Frame.lib(). $LAB is able to do pairings of synchronous and asynchronous library loading. Frame only does synchronous. $LAB does not provide a list of libraries that have been loaded, while Frame.libs() does. 
 
 
 A Note about Naming
