@@ -101,7 +101,7 @@ Frequently init() only needs to be called once, but it may need to be called aga
 				// ...
 				Frame();
 			});
-			Frame.init(); 	// init needs to be called here 
+			Frame.init(); 	// init needs to be called here only because "click" is an event
 		});
 		Frame();
 	});
@@ -111,13 +111,23 @@ Frequently init() only needs to be called once, but it may need to be called aga
 Debug vs Production Versions
 ----------------
 
-The debug version provides a basic unit testing and debugging suite. All of which is disabled from the production version.
+Load Frame in debug mode by calling the debug version:
 
-Same as console.log, but get disabled in production version so that comments can be left in the code without being echoed to end users.
+	<script type="text/javascript" src="/js/Frame_debug.js" />
 
-	Frame.title('Building Navigation');
+Load Frame in production mode by calling the production version:
 
-A Debug level can be set in realtime 
+	<script type="text/javascript" src="/js/Frame.js" />
+
+The debug version provides basic unit testing and debugging tools. All of which is disabled in the production version (replaced with empty functions). 
+
+	Frame.title('Building Navigation'); // announces major application steps in console
+	Frame.log('Building Navigation', someVariable); // same as console.log
+	Frame.error('Building Navigation'); // announces errors in console
+
+These are similar to console.log, but are silent in production mode so that logged developer comments can be left in the code without being echoed to end users. 
+
+A Debug Level can be set in realtime.
 
 	Frame.debug = 0; // no titles
 	Frame.debug = 1; // only titles & errors
@@ -133,6 +143,7 @@ Example: Loading jQuery with Frame
 	Frame(function(){
 		$(function(){
 			Frame.log('jQuery is loaded');
+			Frame();
 		});
 	});
 	Frame.init()
@@ -149,6 +160,30 @@ Example: Sequencing a series of AJAX requests
 	});
 	Frame.init()
 
+
+Example: Debug only one Frame
+----------------
+	
+	Frame(function(){
+		Frame.debug = 3; // increase the debug level at the beginning of the Frame
+			// script you want to debug
+			// ...
+		Frame.debug = 0; // reset the level at the end
+		Frame();
+	});
+
+
+
+FAQ: How is Frame different that $(document).ready()?
+----------------
+
+JQuery's document queue is non-blocking. Frame is designed to handle multiple asynchronous events such as AJAX requests, sequence multi-element page updates, and html animation.
+
+
+FAQ: How is Frame different that $().queue()?
+----------------
+
+Actually Frame is very close to jQuery's queue in usage and purpose, but different in several specific ways. Better error handling, automatic queue recovery on script failures, and built-in unit testing mechanisms are a few examples.
 
 
 A Note about Naming
