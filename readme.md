@@ -216,8 +216,8 @@ http://creativecommons.org/licenses/by-sa/3.0/nl/
 Version
 -----------------
 1.0 
-+ library loader
-+ unit testing
-+ function sequencing
-+ debug suite
+* library loader
+* unit testing
+* function sequencing
+* debug suite
 
