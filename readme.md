@@ -32,7 +32,7 @@ Get a list of loaded Libs (only includes those loaded with Frame)
 
 	console.log( Frame.libs() );
 
-TODO: make a scan of the <head> and see what <script> are already loaded.
+TODO: make a scan of the &lt;head&gt; and see what &lt;script&lt; are already loaded.
 
 
 Sequencing
