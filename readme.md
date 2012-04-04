@@ -14,7 +14,7 @@ Synchronizing code execution not only becomes a useful tool in JS application de
 Library Loader
 ----------------
 
-Frame includes and acts as an interface for the $LAB library loader.
+Frame includes and acts as an interface for the $LAB library loader. https://github.com/getify/LABjs
 
 Load libraries from local or remote servers:
 
@@ -24,6 +24,8 @@ Add a callback:
 
 	Frame('somelib.js', function(){
 		// runs after library is loaded
+		// ...
+		Frame();
 	});
 
 Get a list of loaded Libs
@@ -40,36 +42,35 @@ Sequence functions:
 
 	Frame(function(){
 		// function runs first
+		// ...
 		Frame(); // callback to move to next function in queue
 	});
 	Frame('//load/some/library.js');
 	Frame(function(){
 		// function runs third, after library is loaded
+		// ...
 		Frame(); 
 	});
 	Frame([
 		function(){ 
 			// function runs forth
+			// ...
 			Frame();
 		},
 		function(){
 			// function runs fifth
+			// ...
 			Frame();
 		}
 	]);
 
-Add a pause before a function runs:
+Add a pause before a function runs: (occassionally handy, sometimes crucial)
 
 	Frame(100, function(){
-		// function runs after 100ms
-		Frame(); // callback to move to next function in queue
+		// function runs after 100ms after it is queued up
+		// ...
+		Frame(); 
 	});
-
-Add a pause after a function runs: 
-
-	Frame(function(){
-		Frame(); // callback to move to next function in queue
-	}, 100);
 
 
 Custom Callback name:
@@ -81,11 +82,21 @@ Sometimes in complicated Javascripts, it becomes confusing which callback is cal
 	});
 
 
+Pass in a context or other variables:
+
+	Frame(function(next, context, someVar){
+		// "this" is passed in as "context"
+		// "someVar" is passed in as "someVar"
+		// ...
+		next(); 
+	}, this, someVar);
+
+
 Launch the Frame queue by calling init(). 
 
 	Frame.init();
 
-Frequently init() only needs to be called once, but it may need to be called again if events handler adds functions to Frame after the original Frame queue has already ended. init() will only restart the queue if the Frame queue is not already running.
+Frequently init() only needs to be called once, but it may need to be called again if an event handler adds functions to Frame after the original Frame queue has already ended. init() does nothing is Frame is already running.
 
 	Frame(function(){
 		// function A
@@ -119,7 +130,7 @@ Load Frame in production mode by calling the production version:
 
 	<script type="text/javascript" src="/js/Frame.js" />
 
-The debug version provides basic unit testing and debugging tools. All of which is disabled in the production version (replaced with empty functions). 
+The debug version provides basic unit testing and debugging tools. All of which is disabled or silenced in the production version (replaced with empty functions). 
 
 	Frame.title('Building Navigation'); // announces major application steps in console
 	Frame.log('Building Navigation', someVariable); // same as console.log
@@ -141,10 +152,8 @@ Example: Loading jQuery with Frame
 
 	Frame('http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'); 
 	Frame(function(){
-		$(function(){
-			Frame.log('jQuery is loaded');
-			Frame();
-		});
+		Frame.log('jQuery is loaded', $(document) );
+		Frame();
 	});
 	Frame.init()
 

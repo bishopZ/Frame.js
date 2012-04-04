@@ -11,26 +11,80 @@
 */
 (function(global){
 
+	var noop = function(){}; // used for production version
+
+	///////////////////////////////////////////////////////
 	// Main interface
-	global.Frame = function(a, b, c){
-		if (typeof a == 'string') { Frame.lab(a, b); }
-		if (typeof a == 'number') { setTimeout( function() { Frame(b); }, a); }
-		if (typeof a == 'function') { Frame.unit(a); }
-		if (a instanceof Array){ for(var v in a) { Frame(a[v], b); }; } 
-		if (typeof a == 'undefined') { Frame.next(); }
+
+	global.Frame = function(a, b){
+		if (typeof a === 'string') { 
+			Frame.lib.apply(null, arguments); 
+		}
+		else if (typeof a === 'number') { 
+			setTimeout( function() { Frame.apply(null, arguments); }, a); 
+		}
+		else if (typeof a === 'function') { 
+			Frame.soon.apply(null, arguments); 
+		}
+		else if (a instanceof Array){ 
+			for(var v in a) { arguments[0] = a[v]; Frame.apply(null, arguments); }; 
+		} 
+		else if (typeof a === 'undefined') { 
+			Frame.next(); 
+		}
+		else { 
+			arguments.unshift('Unidentified input: '); Frame.error.apply(null, arguments); 
+		}
 	}
 
-	// Settings
-	Frame.useTimeout = true;
-	Frame.overrideTimeoutLength = 0;
-	Frame.baseTimeoutLength = 750;
-
+	///////////////////////////////////////////////////////
 	// Library loader
-	var _libs = [];
-	Frame.libs = 	function(){ return _libs; }; // return list of loaded libs
-	Frame.lib = 	function(){} // explicitly run $LAB
-	Frame.lab = 	function(){} // direct access to $LAB
 
+	var _libs = [];
+	Frame.LAB = 		$LAB // direct access to $LAB
+	Frame.libs = 
+	Frame.library = 	function(){ return _libs; }; // return list of loaded libs
+	Frame.lib =
+	Frame.load = 		function(a, b){  // explicitly run $LAB
+		var loaded = false;
+		for(var v in Frame._libs){ if (Frame._libs[v] === a) { loaded = true; } }
+		if (!loaded) {
+			Frame(function(){ 
+				$LAB.script(a).wait( function(){ 
+					Frame._libs.push(a); 
+					Frame.log('Library loaded: '+ a); 
+					if (typeof b == 'function') { b(Frame, a); } else { Frame(); } 
+				});
+			}); 
+		} else { 
+			Frame.log('Library already loaded, skipping: '+ a);  
+			if (typeof b == 'function') { b(function(){}, a); }
+		}
+	} 
+	
+	///////////////////////////////////////////////////////
+	// Unit testing
+	
+	Frame.useTimeout 			= true;
+	Frame.overrideTimeoutLength = false;
+	Frame.initialTimeout 		= 250;
+	Frame.testDuration 			= 1000;
+	Frame.machineSpeed 			= 3; // higher is slower
+	Frame.timeout 				= Frame.initialTimeout * Frame.machineSpeed;
+	Frame.keeperSteps 			= 5;
+	Frame.keeperDuration  		= Frame.timeout / Frame.keeperSteps;
+	
+	Frame.resetTimeout = function(){
+		Frame.timeout = (Frame.overrideTimeoutLength) 
+			? Frame.overrideTimeoutLength 
+			: Frame.initialTimeout * Frame.machineSpeed;
+		Frame.keeperDuration = Frame.timeout / Frame.keeperSteps;
+		return Frame.timeout;
+	}
+
+	//...
+
+	///////////////////////////////////////////////////////
 	// Queue functions
 	var _queue = [];
 
@@ -41,11 +95,14 @@
 	Frame.next = 	function(){} // go to next item in queue
 	Frame.init = 	function(){} // start Frame queue
 
+	Frame.length = 	function(){ return _queue.length; } // logs length of existing queue
+
+	///////////////////////////////////////////////////////
 	// Debug suite (debug version only)
 	Frame.debug = 0; // debug level
-	Frame.title = console.log; // function(){}
-	Frame.log = console.log; // function(){}
-	Frame.error = console.log; // function(){}
+	Frame.title = console.log; 
+	Frame.log = console.log; 
+	Frame.error = console.log; 
 
 	// Frame.debug = 0; // no titles
 	// Frame.debug = 1; // only titles & errors
