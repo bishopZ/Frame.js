@@ -15,7 +15,7 @@ Frame includes and acts as an interface for the $LAB library loader. https://git
 
 Load libraries from local or remote servers:
 
-	Frame('//path/to/some/library.js');
+	Frame('http://path/to/some/library.js');
 
 Add a callback:
 
@@ -116,31 +116,34 @@ Frequently init() only needs to be called once, but it may need to be called aga
 	Frame.init();
 
 
+TODO: add a way to do parallel functions.
+
+
 Debug vs Production Versions
 ----------------
 
-Load Frame in debug mode by calling the debug version:
+Load Frame.js in debug mode by loading the debug version:
 
 	<script type="text/javascript" src="/js/frame_debug.js"></script>
 
-Load Frame in production mode by calling the production version:
+Load Frame.js in production mode by loading the production version:
 
 	<script type="text/javascript" src="/js/frame.js"></script>
 
 The debug version provides basic unit testing and debugging tools. All of which is disabled or silenced in the production version (replaced with empty functions). 
 
 	Frame.title('Building Navigation'); // announces major application steps in console
-	Frame.log('Building Navigation', someVariable); // same as console.log
+	Frame.log('Building Navigation', someVariable); // a more cross-browser version of console.log
 	Frame.error('Building Navigation'); // announces errors in console
 
-These are similar to console.log, but are silent in production mode so that logged developer comments can be left in the code without being echoed to end users. 
+These are all similar to console.log, but are silent in production mode so that developer's console comments can be left in the code without being echoed to end users. This is sorely needed in large JS applications.
 
-A Debug Level can be set in realtime.
+The Debug Level changes which debug messages are sent to console. The level can be changed as the application runs.
 
-	Frame.debug = 0; // no titles
+	Frame.debug = 0; // nothing
 	Frame.debug = 1; // only titles & errors
 	Frame.debug = 2; // titles, logs & errors
-	Frame.debug = 3; // titles, logs & errors, and additional start and stop messages
+	Frame.debug = 3; // titles, logs & errors, and additional Frame start and stop messages
 
 
 
@@ -180,19 +183,19 @@ Example: Debug only one Frame
 
 
 
-FAQ: How is Frame different that $(document).ready()?
+FAQ: How is Frame different than $(document).ready()?
 ----------------
 
 JQuery's document queue is non-blocking. Frame is designed to handle multiple asynchronous events such as AJAX requests, sequence multi-element page updates, and html animation.
 
 
-FAQ: How is Frame different that $().queue()?
+FAQ: How is Frame different than $().queue()?
 ----------------
 
 Actually Frame is very close to jQuery's queue in usage and purpose, but different in several specific ways. Better error handling, automatic queue recovery on script failures, and built-in unit testing mechanisms are a few examples.
 
 
-FAQ: How is Frame.lib() different that $LAB.script()?
+FAQ: How is Frame.lib() different than $LAB.script()?
 ----------------
 
 $LAB is loaded with Frame, but using $LAB instead of Frame.lib() does not provide the advatages of Frame.lib(). $LAB is able to do pairings of synchronous and asynchronous library loading. Frame only does synchronous. $LAB does not provide a list of libraries that have been loaded, while Frame.libs() does. 
@@ -204,16 +207,17 @@ A Note about Naming
 A capitalized first letter in Javascript often indicates a class rather than an object. While Frame is an object, it works much like a class, and plays an important enough role that we elected for the name Frame() rather than frame(). 
 
 
-
 License
 ----------------
 Licensed under the Creative Commons BY-SA 3.0  
 http://creativecommons.org/licenses/by-sa/3.0/nl/
 
 
-
 Version
 -----------------
-0.1  
-+ nothing yet
+1.0 
++ library loader
++ unit testing
++ function sequencing
++ debug suite
 
