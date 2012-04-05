@@ -7,7 +7,7 @@ Despite the benefits of non-blocking asynchronous code execution in Javascript, 
 
 While many function sequencers exist, such as <a href="https://github.com/caolan/async">async</a>, <a href="https://github.com/substack/node-seq">Seq</a>, and <a href="https://github.com/it-ony/flow.js/blob/master/lib/flow.js">flow.js</a>, Frame.js is focused on application level synchronous function management, includes a library loader to mix-and-match between remote scripts, local scripts, and functions. Frame also provides a set of basic debugging and unit testing tools. 
 
-And it clocks in at just over 8k.
+And it clocks in at just under 10k.
 
 
 Library Loader
