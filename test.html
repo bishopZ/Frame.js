@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<script type="text/javascript" src="frame_debug.js"></script>
+		<script type="text/javascript" src="frame.min.js"></script>
 	</head>
 	<body>
 		<h1>Hello! Check the console!</h1>
@@ -12,7 +12,7 @@
 
 		Frame('http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js', function(next){
 			// set Frame.debug = 3 or higher to see titles in console
-			Frame.title('jQuery loaded callback');
+			$('body').append('<p>jQuery loaded callback<p>');
 			next();
 		}); 
 
@@ -29,6 +29,7 @@
 		Frame.later(function(){
 			Frame.log("what happens if you dont call the callback? (function times out)");
 			Frame.log("set Frame.debug = 2 or higher to see errors in the console");
+			$('body').append('<p>jQuery loaded callback<p>');
 		});
 		Frame.now(function(next){
 			Frame.title('Frame.NOW!');

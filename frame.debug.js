@@ -10,6 +10,9 @@
 */
 (function(global){
 
+	///////////////////////////////////////////////////////
+	// Main interface
+
 	global.Frame = function(a, b){
 		var args = _makeArray(arguments);
 		if (a instanceof Array){ 
@@ -30,13 +33,15 @@
 		return true;
 	}
 
-	var Fn = global.Frame;
-	var no = function(){}; 
+	// helper for arrays
 	var _makeArray = function(a) { return Array.prototype.slice.call(a, 0); }
+
+	// helper for setTimeouts
 	var _rewrap = function(){ 
 		var props = _makeArray(arguments),
 			delay = props.shift(),
 			fn = props.shift();
+
 		props.unshift(function(){
 			var args = _makeArray(arguments);
 			setTimeout(function() { 
@@ -46,183 +51,282 @@
 		return props;
 	}
 
+	// TODO: parallels
+
+	// for production version 
+	// var Fn = global.Frame;
+	// var no = function(){}; 
+
+
+	///////////////////////////////////////////////////////
+	// Library loader
+
 	var _libs = [];
-	Fn.LAB = $LAB;
-	Fn.libs = 
-	Fn.library = function(){ return _libs; }; 
-	Fn.lib =
-	Fn.load = function(a, b){  
+	Frame.LAB = $LAB; // direct access to $LAB, for convenience
+	Frame.libs = 
+	Frame.library = function(){ return _libs; }; // return list of loaded libs
+	Frame.lib =
+	Frame.load = function(a, b){  // explicitly run $LAB
 		var args = _makeArray(arguments);
 		var _loaded = false;
 		for(var v in _libs){ if (_libs[v] === a) { _loaded = true; } }
 		if (!_loaded) {
-			Fn(function(){ 
+			Frame(function(){ 
 				$LAB.script(a).wait( function(){ 
 					_libs.push(a); 
+					Frame.log('Library loaded: '+ a); 
 					if (typeof b == 'function') {
-						args[0] = Fn.next; 
+						args[0] = Frame.next; 
 						b.apply(null, args); 
-					} else { Fn(); } 
+					} else { Frame(); } 
 				});
 			}); 
 		} else { 
+			Frame.log('Library already loaded, skipping: '+ a);  
 			if (typeof b == 'function') { b(function(){}, a); }
 		}
 	} 
 	
-	var _keeper = false, 
-		_timer	= false, 
-		_speed	= false,
-		_speeds	= []; 	
-	Fn.running               = false;
-	Fn.last                  = false;
-	Fn.useTimeout            = true;
-	Fn.overrideTimeoutLength = false;
-	Fn.initialTimeout        = 250;
-	Fn.testDuration          = 1000;
-	Fn.machineSpeed          = 3; 
-	Fn.timeout               = Fn.initialTimeout * Fn.machineSpeed;
-	Fn.keeperSteps           = 5;
-	Fn.keeperDuration        = Fn.timeout / Fn.keeperSteps;
+	// TODO: doc.getElementsByTagName( "script" )
+	// TODO: yepnope
+
+	///////////////////////////////////////////////////////
+	// Unit testing
 	
-	Fn.resetTimeout = function(){
-		Fn.timeout = (Fn.overrideTimeoutLength) 
-			? Fn.overrideTimeoutLength 
-			: Fn.initialTimeout * Fn.machineSpeed;
-		Fn.keeperDuration = Fn.timeout / Fn.keeperSteps;
-		return Fn.timeout;
+	var _keeper = false, // promise keeper, sort of, TODO: make a real promise keeper
+		_timer	= false, // unit test
+		_speed	= false, // unit test
+		_speeds	= []; 	
+	
+	Frame.running               = false;
+	Frame.last                  = false;
+	Frame.useTimeout            = true;
+	Frame.overrideTimeoutLength = false;
+	Frame.initialTimeout        = 250;
+	Frame.testDuration          = 1000;
+	Frame.machineSpeed          = 3; // higher is slower
+	Frame.timeout               = Frame.initialTimeout * Frame.machineSpeed;
+	Frame.keeperSteps           = 5;
+	Frame.keeperDuration        = Frame.timeout / Frame.keeperSteps;
+	
+	Frame.resetTimeout = function(){
+		Frame.timeout = (Frame.overrideTimeoutLength) 
+			? Frame.overrideTimeoutLength 
+			: Frame.initialTimeout * Frame.machineSpeed;
+		Frame.keeperDuration = Frame.timeout / Frame.keeperSteps;
+		return Frame.timeout;
 	}
 
 	// Machine Speed Test
-	Fn.speedTest = function (a){
+	Frame.speedTest = function (a){
 		var _ticks = 1;
 		var _ticker = setInterval(function(){ _ticks++; }, 1);
 		setTimeout(function(){
 			_ticker = clearInterval(_ticker); _ticker = false;
-			Fn.machineSpeed = Math.ceil(Fn.testDuration/_ticks);
-			if (Fn.machineSpeed < 1) { Fn.machineSpeed = 1; }
-			Fn.resetTimeout();
-			if (typeof a === 'function') { a.apply(Fn, _makeArray(arguments).splice(1)) }
-		}, Fn.testDuration);
+			Frame.machineSpeed = Math.ceil(Frame.testDuration/_ticks);
+			if (Frame.machineSpeed < 1) { Frame.machineSpeed = 1; }
+			Frame.resetTimeout();
+			Frame.log('Speed test complete, Machine Speed: '+ Frame.machineSpeed + ', Timeout: '+ Frame.timeout);
+			if (typeof a === 'function') { a.apply(Frame, _makeArray(arguments).splice(1)) }
+		}, Frame.testDuration);
 		return 'Speed Test running...';
 	}
 
-	Fn.report = no;
+	// Speed report
+	Frame.report = function(){ Frame.log('speeds ', _speeds.splice(1)); }
 
+	//////////////////
+	/////  Internals
+
+	// Start a unit
 	var _start = function(){
-		Fn.running = true; 
+		Frame.running = true; // update global
+		if(Frame.debug > 4) { Frame.log(Frame.last); } // debug
+		else if(Frame.debug > 3) { 
+			Frame.log(
+				'---- ' + (_speed || 0) + 'ms', 
+				'queue: '+ _queue.length, 
+				'later: '+_later.length, 
+				' ----' ); 
+		} 
+
+		// speed test
 		_speeds.push(_speed);
 		_speed = 0; 
 		_clear();
+
+		// promise keeper
 		_timer = setInterval(function(){_speed++;}, 1);
 		_keeper = setInterval(function(){
-			if (_speed > Fn.timeout){
-				Fn();
+			if (_speed > Frame.timeout){
+				Frame.error('Timed out after '+_speed, Frame.last);
+				Frame();
 			}
-		}, Fn.keeperDuration );
+		}, Frame.keeperDuration );
 	}
+
+	// Unit is done!
 	var _stop = function(){
+		if(Frame.debug > 3) { Frame.log('---- Frame done ----'); } // debug
 		_clear();
-		Fn.running = false; 
+		Frame.running = false; 
 	}
+	
+	// Clear intervals
 	var _clear = function(){
-		_keeper = clearInterval(_keeper); _keeper = false; 
+		_keeper = clearInterval(_keeper); _keeper = false; // oddly this seems like the best way to clear an interval
 		_timer = clearInterval(_timer); _timer = false;
 	}
+
+
+	///////////////////////////////////////////////////////
+	// Queue functions
 
 	var _queue = [],
 		_qArgs = [],
 		_later = [],
 		_lArgs = [];
 
-	Fn.queue = function(){ return _queue.concat(_later); } 
-	Fn.args = function(){ return _qArgs.concat(_lArgs); } 
-	Fn.len = 
-	Fn.count = function(){ return (_queue.length + _later.length); } 
+	Frame.queue = function(){ return _queue.concat(_later); } // returns the existing queue
+	Frame.args = function(){ return _qArgs.concat(_lArgs); } // returns the existing queue
+	Frame.len = 
+	Frame.count = function(){ return (_queue.length + _later.length); } // returns length of the queue
 
-	Fn.soon = function(a){ 
+	Frame.soon = function(a){ // add function to queue
 		var args = _makeArray(arguments);
-		if (typeof a === 'number') { return Fn.apply(null, args); } 
+		if (typeof a === 'number') { return Frame.apply(null, args); } 
 		else if (typeof a ==='function'){ 
 			_qArgs.push(args.splice(1));
+			if (Frame.debug > 4){ Frame.log('Frame added soon', Frame.count()); }
 			return _queue.push(a); 
 		} 
+
 		return false;
 	}
 
-	Fn.now = function(a){ 
+	Frame.now = function(a){ // prepend to queue
 		var args = _makeArray(arguments);
-		if (typeof a === 'number') { return Fn.now.apply(null, _rewrap.apply(null, args)); } 
+		if (typeof a === 'number') { return Frame.now.apply(null, _rewrap.apply(null, args)); } 
 		else if(typeof a ==='function'){ 
 			_qArgs.unshift(args.splice(1));
+			if (Frame.debug > 4){ Frame.log('Frame added now', Frame.count()); }
 			return _queue.unshift(a); 
 		}
 		return false;
 	}
 
-	Fn.later = function(a){ 
+	Frame.later = function(a){ // run when main queue is empty
 		var args = _makeArray(arguments);
-		if (typeof a === 'number') { return Fn.later.apply(null, _rewrap.apply(null, args)); } 
+		if (typeof a === 'number') { return Frame.later.apply(null, _rewrap.apply(null, args)); } 
 		else if(typeof a ==='function'){ 
 			_lArgs.push(args.splice(1));
+			if (Frame.debug > 4){ Frame.log('Frame added later', Frame.count()); } 
 			return _later.push(a); 			
 		}
 		return false;
 	} 
 
-	Fn.next = function(a){ 
+	Frame.next = function(a){ // go to next item in queue
 		var args = _makeArray(arguments);
+
 		if(_queue.length > 0){
-			Fn.last = _qArgs.shift();
-			Fn.last.unshift( _queue.shift() ); 
-			Fn.last = Fn.last.concat(args); 
-			return _run.apply(null, Fn.last);
+			Frame.last = _qArgs.shift();
+			Frame.last.unshift( _queue.shift() ); 
+			Frame.last = Frame.last.concat(args); // add any waterfall arguments
+			Frame.stack.push(Frame.last);
+			return _run.apply(null, Frame.last);
 		} else if (_later.length > 0){
-			Fn.last = _lArgs.shift();
-			Fn.last.unshift( _later.shift() ); 
-			Fn.last = Fn.last.concat(args); 
-			return _run.apply(null, Fn.last);
+			Frame.last = _lArgs.shift();
+			Frame.last.unshift( _later.shift() ); 
+			Frame.last = Frame.last.concat(args); 
+			Frame.stack.push(Frame.last);
+			return _run.apply(null, Frame.last);
 		} else {
 			_stop();
 			return false;
 		}
 	} 
 	
-	Fn.begin =
-	Fn.start =
-	Fn.init = function(){ 
-		if (Fn.running === false){ Fn.next(); return true; } 
-		else { return false; }
+	Frame.begin =
+	Frame.start =
+	Frame.init = function(){ // start Frame queue
+		if (Frame.running === false){ Frame.title('Frame started'); Frame.next(); return true; } 
+		else { Frame.title('Frame already running'); return false; }
 	};
 
-	var _run = function(fn){ 
+	var _run = function(fn){ // the magic
 		var args = _makeArray(arguments);
 		if (typeof fn === 'function') { 
 			_start();
-			try { 
-				args[0] = Fn.next; 
+			try { // only catches some errors, but has minimal speed impact and adds safety
+				// replace the first argument with the callback function
+				// callback is next() instead of Frame(), so waterfall args can be passed in
+	 			args[0] = Frame.next; 
 	 			return fn.apply(null, args);
 	 		} catch(e) {
 	 			_clear();
-	 			Fn(); 
+	 			Frame.error(e, Frame.last);
+	 			Frame(); // move on
 	 		}
 	 		return true;
 		} else {
-			_stop(); 
+			_stop(); // doubled up here for safety
 			return false;
 		}
 	} 
 
-	Fn.debug = 0;
-	Fn.errors = [];
-	Fn.stack = [];
-	Fn.log = no;
-	Fn.title = no; 
-	Fn.error = no;
+	///////////////////////////////////////////////////////
+	// Debug suite (debug version only)
+	// Frame.debug = 0; // silent
+	// Frame.debug = 1; // log only
+	// Frame.debug = 2; // logs & errors
+	// Frame.debug = 3; // titles, logs & errors
+	// Frame.debug = 4; // titles, logs & errors, and additional start and stop messages
+	
+	Frame.debug = 0; // default debug level
+	Frame.errors = [];
+	Frame.stack = [];
+	
+	Frame.log = function(){ 
+		var args = _makeArray(arguments);
+		Frame.stack.push(arguments);
+		if (Frame.debug > 0) {
+			try {
+				console.log.apply(console, args);
+			} catch(e) {
+				Frame.errors.push(args);
+			}
+		}
+	};
 
-	Fn.resetTimeout();
-	Fn.later(function(){
-		Fn.speedTest(Fn.next);
+	Frame.title = function(a){ 
+		var args = _makeArray(arguments);
+		if (Frame.debug > 2) {
+			args.unshift('Frame Title: ');
+			Frame.log.apply(document, args);
+		}
+	}; 
+	
+	Frame.error =  function(a){ 
+		var args = _makeArray(arguments);
+		Frame.errors.push(args);
+		if (Frame.debug > 1) {
+			args.unshift('Frame Error: ');
+			Frame.log.apply(document, args);
+		}
+	};
+
+	
+	///////////////////////////////////////////////////////
+	// Start it up!
+	
+	Frame.resetTimeout();
+	
+	// queue a speed test in the later queue
+	Frame.later(function(){
+		Frame.speedTest(Frame.next);
 	});
+
+	Frame.title('Frame Finished Loading');
 
 })(this);
