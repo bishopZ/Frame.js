@@ -64,9 +64,9 @@
 			callback('waterfall value 1', 'waterfall value 2');
 		});
 
-		Frame(function(callback, context, waterfall){
+		Frame(function(callback){
 			
-			Frame.log('when both are used the arguments are concatinated');
+			Frame.log('when both are used, the arguments are concatinated');
 			Frame.log(Array.prototype.splice.call(arguments, 1));
 
 			callback();
