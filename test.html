@@ -3,7 +3,7 @@
 		<script type="text/javascript" src="frame.min.js"></script>
 	</head>
 	<body>
-		<h1>Hello! Check the console!</h1>
+		<h2>Hello! Check the console!</h2>
 		<script>
 
 		Frame.debug = 4;
@@ -12,7 +12,7 @@
 
 		Frame('http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js', function(next){
 			// set Frame.debug = 3 or higher to see titles in console
-			$('body').append('<p>jQuery loaded callback<p>');
+			$('body').append('<p>jQuery loaded callback</p>');
 			next();
 		}); 
 
@@ -29,7 +29,7 @@
 		Frame.later(function(){
 			Frame.log("what happens if you dont call the callback? (function times out)");
 			Frame.log("set Frame.debug = 2 or higher to see errors in the console");
-			$('body').append('<p>jQuery loaded callback<p>');
+			$('body').append('<p>And later, more stuff happens</p>');
 		});
 		Frame.now(function(next){
 			Frame.title('Frame.NOW!');
@@ -79,17 +79,13 @@
 			callback();
 		}, 'context value');
 
-		// Debug and testing functions
 		Frame(function(){
 
-			Frame.report();
-
-
+			Frame.report(); // report on script execution speeds, in debug version only
 			Frame();
 		})
 
-		
-		Frame.start();
+		Frame.start(); // same as Frame.init()
 
 		</script>
 	</body>

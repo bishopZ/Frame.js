@@ -139,11 +139,11 @@ These are all similar to console.log, but are silent in production mode so that 
 
 The Debug Level changes which debug messages are sent to console. The level can be changed as the application runs.
 
-	Frame.debug = 0; // nothing
-	Frame.debug = 1; // only titles & errors
-	Frame.debug = 2; // titles, logs & errors
-	Frame.debug = 3; // titles, logs & errors, and additional Frame start and stop messages
-	Frame.debug = 4; // echos the full functions to console as they run
+	Frame.debug = 0; // silent
+	Frame.debug = 1; // log only
+	Frame.debug = 2; // logs & errors
+	Frame.debug = 3; // titles, logs & errors
+	Frame.debug = 4; // titles, logs & errors, and additional start and stop messages
 
 
 
@@ -168,18 +168,6 @@ Example: Sequencing a series of AJAX requests
 		});
 	});
 	Frame.init()
-
-
-Example: Debug only one Frame
-----------------
-	
-	Frame(function(){
-		Frame.debug = 3; // increase the debug level at the beginning of the Frame
-			// script you want to debug
-			// ...
-		Frame.debug = 0; // reset the level at the end
-		Frame();
-	});
 
 
 
