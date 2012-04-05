@@ -1,11 +1,13 @@
 Frame.js
 ============
 
-Frame.js is a function sequencer and library loader for Javascript applications. 
+Frame.js is a function sequencer, job manager and library loader for Javascript applications. 
 
 Despite the benefits of non-blocking asynchronous code execution in Javascript, endless chains of callback functions make for unreadable code and difficult to control applications. 
 
-While many function sequencers exist like <a href="https://github.com/caolan/async">async</a>, <a href="https://github.com/substack/node-seq">Seq</a>, and <a href="https://github.com/it-ony/flow.js/blob/master/lib/flow.js">flow.js</a>, Frame is focused on sequential code execution, includes a library loader to mix-and-match between remote scripts, local scripts and functions, and provides a set of basic debugging and unit testing tools. All that and it clocks in at just over 8k.
+While many function sequencers exist, such as <a href="https://github.com/caolan/async">async</a>, <a href="https://github.com/substack/node-seq">Seq</a>, and <a href="https://github.com/it-ony/flow.js/blob/master/lib/flow.js">flow.js</a>, Frame.js is focused on application level synchronous function management, includes a library loader to mix-and-match between remote scripts, local scripts, and functions. Frame also provides a set of basic debugging and unit testing tools. 
+
+And it clocks in at just over 8k.
 
 
 Library Loader
@@ -29,8 +31,6 @@ Get a list of loaded Libs (only includes those loaded with Frame)
 
 	console.log( Frame.libs() );
 
-TODO: make a scan of the &lt;head&gt; and see what &lt;script&gt; are already loaded.
-
 
 Sequencing
 ----------------
@@ -42,20 +42,21 @@ Sequence functions:
 		// ...
 		Frame(); // callback to move to next function in queue
 	});
-	Frame('//load/some/library.js');
+	Frame('http://load/some/remote/library.js');
+	Frame('/some/local/library.js');
 	Frame(function(){
-		// function runs third, after library is loaded
+		// function runs forth, after both libraries are loaded
 		// ...
 		Frame(); 
 	});
 	Frame([
 		function(){ 
-			// function runs forth
+			// function runs fifth
 			// ...
 			Frame();
 		},
 		function(){
-			// function runs fifth
+			// function runs sixth
 			// ...
 			Frame();
 		}
@@ -116,8 +117,6 @@ Frequently init() only needs to be called once, but it may need to be called aga
 	Frame.init();
 
 
-TODO: add a way to do parallel functions.
-
 
 Debug vs Production Versions
 ----------------
@@ -144,6 +143,7 @@ The Debug Level changes which debug messages are sent to console. The level can 
 	Frame.debug = 1; // only titles & errors
 	Frame.debug = 2; // titles, logs & errors
 	Frame.debug = 3; // titles, logs & errors, and additional Frame start and stop messages
+	Frame.debug = 4; // echos the full functions to console as they run
 
 
 
@@ -211,13 +211,4 @@ License
 ----------------
 Licensed under the Creative Commons BY-SA 3.0  
 http://creativecommons.org/licenses/by-sa/3.0/nl/
-
-
-Version
------------------
-1.0 
-* library loader
-* unit testing
-* function sequencing
-* debug suite
 

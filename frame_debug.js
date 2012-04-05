@@ -6,39 +6,60 @@
 
 
 /* Frame.js (Javascript Job Manager)
-	v0.1 (c) Bishop Zareh
+	v1. (c) Bishop Zareh
 	MIT License
 */
 (function(global){
 
-	var noop = function(){}; // used for production version
-
+	
 	///////////////////////////////////////////////////////
 	// Main interface
 
 	global.Frame = function(a, b){
-		if (typeof a === 'string') { 
-			Frame.lib.apply(null, arguments); 
-		}
-		else if (typeof a === 'number') { 
-			setTimeout( function() { Frame.apply(null, arguments); }, a); 
-		}
-		else if (typeof a === 'function') { 
-			Frame.soon.apply(null, arguments); 
-		}
-		else if (a instanceof Array){ 
-			for(var v in a) { arguments[0] = a[v]; Frame.apply(null, arguments); }; 
-		} 
-		else if (typeof a === 'undefined') { 
-			Frame.next.apply(null, arguments); 
-		}
-		else { 
-			arguments.unshift('Unidentified input: '); 
-			Frame.error.apply(null, arguments); 
-			return false;
+		var args = _makeArray(arguments);
+		if (a instanceof Array){ 
+			for(var v in a) { args[0] = a[v]; Frame.apply(null, args); }; 
+		} else {
+			switch(typeof a){
+				case 'string': Frame.lib.apply(null, args); break;
+				case 'number': Frame.soon.apply(null, _rewrap.apply(null, args)); break;
+				case 'function': Frame.soon.apply(null, args);  break;
+				case 'undefined': Frame.next();  break; 
+				default: 
+					args.unshift('Unidentified input: '); 
+					Frame.error.apply(null, args); 
+					return false; 
+				break;
+			}
 		}
 		return true;
+		
 	}
+
+	// helper
+	var _makeArray = function(a) { return Array.prototype.slice.call(a, 0); }
+
+	// for set timeouts
+	var _rewrap = function(){ 
+		var props = _makeArray(arguments),
+			delay = props.shift(),
+			fn = props.shift();
+
+		props.unshift(function(){
+			var args = _makeArray(arguments);
+			setTimeout(function() { 
+				fn.apply(null, args);
+			}, delay); 
+		});
+		return props;
+	}
+
+	// TODO: parallels
+
+	// used for production version compression
+	var Fn = global.Frame;
+	var no = function(){}; 
+
 
 	///////////////////////////////////////////////////////
 	// Library loader
@@ -49,14 +70,18 @@
 	Frame.library = 	function(){ return _libs; }; // return list of loaded libs
 	Frame.lib =
 	Frame.load = 		function(a, b){  // explicitly run $LAB
+		var args = _makeArray(arguments);
 		var _loaded = false;
-		for(var v in Frame._libs){ if (Frame._libs[v] === a) { _loaded = true; } }
+		for(var v in _libs){ if (_libs[v] === a) { _loaded = true; } }
 		if (!_loaded) {
 			Frame(function(){ 
 				$LAB.script(a).wait( function(){ 
-					Frame._libs.push(a); 
+					_libs.push(a); 
 					Frame.log('Library loaded: '+ a); 
-					if (typeof b == 'function') { b(Frame, a); } else { Frame(); } 
+					if (typeof b == 'function') {
+						args[0] = Frame.next; 
+						b.apply(null, args); 
+					} else { Frame(); } 
 				});
 			}); 
 		} else { 
@@ -65,9 +90,19 @@
 		}
 	} 
 	
+	// TODO: doc.getElementsByTagName( "script" )
+	// TODO: yepnope
+
 	///////////////////////////////////////////////////////
 	// Unit testing
 	
+	var _keeper = false; // promise keeper, sort of, TODO: make a real promise keeper
+	var _timer	= false; // unit test
+	var _speed	= false; // unit test
+	var _speeds	= []; 	
+	
+	Frame.running 				= false;
+	Frame.last 					= false;
 	Frame.useTimeout 			= true;
 	Frame.overrideTimeoutLength = false;
 	Frame.initialTimeout 		= 250;
@@ -86,7 +121,7 @@
 	}
 
 	// Machine Speed Test
-	Frame.speedTest = function (){
+	Frame.speedTest = function (a){
 		var _ticks = 1;
 		var _ticker = setInterval(function(){ _ticks++; }, 1);
 		setTimeout(function(){
@@ -94,70 +129,221 @@
 			Frame.machineSpeed = Math.ceil(Frame.testDuration/_ticks);
 			if (Frame.machineSpeed < 1) { Frame.machineSpeed = 1; }
 			Frame.resetTimeout();
-			console.log('Speed test complete, Machine Speed: '+ Frame.machineSpeed + ', Timeout: '+ Frame.timeout);
+			Frame.log('Speed test complete, Machine Speed: '+ Frame.machineSpeed + ', Timeout: '+ Frame.timeout);
+			if (typeof a === 'function') { a.apply(Frame, _makeArray(arguments).splice(1)) }
 		}, Frame.testDuration);
+		return 'Speed Test running...';
 	}
 
-	Frame.resetTimeout();
-	
+	// Speed report
+	Frame.report = function(){ Frame.log(_speeds); }
 
-	///////////////////////////////////////////////////////
-	// Queue functions
+	//////////////////
+	/////  Internals
 
-	var _queue = [];
-	var _keeper = false; // promise keeper
-	var _timer	= false; // unit test
-	var _speed	= false; // unit test
-	
-	Frame.started = false;
-	Frame.last = false;
+	// Start a unit
+	var _start = function(){
+		Frame.running = true; // update global
+		if(Frame.debug > 4) { Frame.log(Frame.last); } // debug
+		else if(Frame.debug > 3) { 
+			Frame.log(
+				'---- ' + (_speed || 0) + 'ms', 
+				'queue: '+ _queue.length, 
+				'later: '+_later.length, 
+				' ----' ); 
+		} 
 
-	var start = function(){
-		Frame.started = true; 
+		// speed test
+		_speeds.push(_speed);
 		_speed = 0; 
-		_timer = clearInterval(_timer); _timer = false;
-		_keeper = clearInterval(_keeper); _keeper = false;
+		_clear();
+
+		// promise keeper
+		_timer = setInterval(function(){_speed++;}, 1);
 		_keeper = setInterval(function(){
 			if (_speed > Frame.timeout){
-				Frame.error('Timed out, skipping ahead ', Frame.last);
+				Frame.error('Timed out after '+_speed, Frame.last);
 				Frame();
 			}
 		}, Frame.keeperDuration );
 	}
 
-	//...
-
-	var stop = function(){}
-
-
-	Frame.now = 	function(){} // prepend to queue
-	Frame.soon = 	function(){} // add function to queue
-
-	Frame.end =
-	Frame.after =
-	Frame.later = 	function(){} // run when main queue is empty
-
-	Frame.next = 	function(){} // go to next item in queue
+	// Unit is done!
+	var _stop = function(){
+		if(Frame.debug > 3) { Frame.log('---- Frame done ----'); } // debug
+		_clear();
+		Frame.running = false; 
+	}
 	
-	Frame.begin =
-	Frame.start =
-	Frame.init = 	function(){} // start Frame queue
-
-	Frame.q =
-	Frame.queue =	function(){ return _queue; } // returns the existing queue
-	Frame.length = 	function(){ return _queue.length; } // returns length of the queue
+	// Clear intervals
+	var _clear = function(){
+		_keeper = clearInterval(_keeper); _keeper = false; // oddly this seems like the best way to clear an interval
+		_timer = clearInterval(_timer); _timer = false;
+	}
 
 
 	///////////////////////////////////////////////////////
-	// Debug suite (debug version only)
-	Frame.debug = 0; // debug level
-	Frame.title = console.log; 
-	Frame.log = console.log; 
-	Frame.error = console.log; 
+	// Queue functions
 
-	// Frame.debug = 0; // no titles
-	// Frame.debug = 1; // only titles & errors
-	// Frame.debug = 2; // titles, logs & errors
-	// Frame.debug = 3; // titles, logs & errors, and additional start and stop messages
+	var _queue = [];
+	var _qArgs = [];
+	var _later = [];
+	var _lArgs = [];
+
+	Frame.queue = function(){ return _queue.concat(_later); } // returns the existing queue
+	Frame.args = function(){ return _qArgs.concat(_lArgs); } // returns the existing queue
+	Frame.length = function(){ return _queue.length + _later.length; } // returns length of the queue
+
+	Frame.soon = function(a){ // add function to queue
+		var args = _makeArray(arguments);
+		if (typeof a === 'number') { return Frame.apply(null, args); } 
+		else if (typeof a ==='function'){ 
+			_qArgs.push(args.splice(1));
+			if (Frame.debug > 4){ Frame.log('Frame added soon', args); }
+			return _queue.push(a); 
+		} 
+
+		return false;
+	}
+
+	Frame.now = function(a){ // prepend to queue
+		var args = _makeArray(arguments);
+		if (typeof a === 'number') { return Frame.now.apply(null, _rewrap.apply(null, args)); } 
+		else if(typeof a ==='function'){ 
+			_qArgs.unshift(args.splice(1));
+			if (Frame.debug > 4){ Frame.log('Frame added now', args); }
+			return _queue.unshift(a); 
+		}
+		return false;
+	}
+
+	Frame.later = function(a){ // run when main queue is empty
+		var args = _makeArray(arguments);
+		if (typeof a === 'number') { return Frame.later.apply(null, _rewrap.apply(null, args)); } 
+		else if(typeof a ==='function'){ 
+			_lArgs.push(args.splice(1));
+			if (Frame.debug > 4){ Frame.log('Frame added later', args); } 
+			return _later.push(a); 			
+		}
+		return false;
+	} 
+
+	Frame.next = function(a){ // go to next item in queue
+		var args = _makeArray(arguments);
+
+		if(_queue.length > 0){
+			Frame.last = _qArgs.shift();
+			Frame.last.unshift( _queue.shift() ); 
+			Frame.last = Frame.last.concat(args); // add any waterfall arguments
+			Frame.stack.push(Frame.last);
+			return _run.apply(null, Frame.last);
+		} else if (_later.length > 0){
+			Frame.last = _lArgs.shift();
+			Frame.last.unshift( _later.shift() ); 
+			Frame.last = Frame.last.concat(args); 
+			Frame.stack.push(Frame.last);
+			return _run.apply(null, Frame.last);
+		} else {
+			_stop();
+			return false;
+		}
+	} 
+	
+	Frame.begin =
+	Frame.start =
+	Frame.init = function(){ // start Frame queue
+		if (Frame.running === false){ Frame.title('Frame started'); Frame.next(); return true; } 
+		else { Frame.title('Frame already running'); return false; }
+	};
+
+	var _run = function(fn){ // the magic
+		var args = _makeArray(arguments);
+		if (typeof fn === 'function') { 
+			_start();
+			try { // only catches some errors, but has minimal speed impact and adds safety
+				// replace the first argument with the callback function
+				// callback is next() instead of Frame(), so waterfall args can be passed in
+	 			args[0] = Frame.next; 
+	 			return fn.apply(null, args);
+	 		} catch(e) {
+	 			_clear();
+	 			Frame.error(e, Frame.last);
+	 			Frame(); // move on
+	 		}
+	 		return true;
+		} else {
+			_stop(); // doubled up here for safety
+			return false;
+		}
+	} 
+
+	///////////////////////////////////////////////////////
+	// Debug suite (debug version only)
+	// Frame.debug = 0; // silent
+	// Frame.debug = 1; // log only
+	// Frame.debug = 2; // logs & errors
+	// Frame.debug = 3; // titles, logs & errors
+	// Frame.debug = 4; // titles, logs & errors, and additional start and stop messages
+	
+	Frame.debug = 0; // default debug level
+	Frame.errors = [];
+	Frame.stack = [];
+	
+	// helper
+	var _optional = function (){ 
+		for (var a=0; a<arguments.length; a++) {
+			if (typeof arguments[a] !== 'undefined' && arguments[a] !== null) { 
+				if (String(arguments[a]) !== 'NaN') {
+					return arguments[a];	// if a default set with param
+				}
+			} 
+		}
+		return ''; // if all else fails, return an empty string
+	}
+
+	console = _optional(console, {}); // since everything is in try/catch, this is enough
+
+	Frame.log = function(){ 
+		var args = _makeArray(arguments);
+		Frame.stack.push(arguments);
+		if (Frame.debug > 0) {
+			try {
+				console.log.apply(console, args);
+			} catch(e) {
+				Frame.errors.push(args);
+			}
+		}
+	};
+
+	Frame.title = function(a){ 
+		var args = _makeArray(arguments);
+		if (Frame.debug > 2) {
+			args.unshift('Frame Title: ');
+			Frame.log.apply(document, args);
+		}
+	}; 
+	
+	Frame.error =  function(a){ 
+		var args = _makeArray(arguments);
+		if (Frame.debug > 1) {
+			args.unshift('Frame Error: ');
+			Frame.log.apply(document, args);
+		}
+	};
+
+	
+
+	
+	///////////////////////////////////////////////////////
+	// init timeouts
+	
+	Frame.resetTimeout();
+	
+	// queue a speed test in the later queue
+	Frame.later(function(){
+		Frame.speedTest(Frame.next);
+	});
+
+	Frame.title('Frame Finished Loading');
 
 })(this);
