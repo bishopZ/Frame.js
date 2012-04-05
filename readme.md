@@ -49,18 +49,6 @@ Sequence functions:
 		// ...
 		Frame(); 
 	});
-	Frame([
-		function(){ 
-			// function runs fifth
-			// ...
-			Frame();
-		},
-		function(){
-			// function runs sixth
-			// ...
-			Frame();
-		}
-	]);
 
 Add a pause before a function runs: (occassionally handy, sometimes crucial)
 

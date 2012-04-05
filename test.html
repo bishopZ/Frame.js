@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<script type="text/javascript" src="frame.min.js"></script>
+		<script type="text/javascript" src="frame.debug.js"></script>
 	</head>
 	<body>
 		<h2>Hello! Check the console!</h2>
@@ -18,11 +18,11 @@
 
 		// Queue function examples
 
-		Frame(600, function(next){
+		Frame(800, function(next){
 			Frame.title('Frame.soon with delay');
 			next();
 		});
-		Frame.later(600, function(next){
+		Frame.later(800, function(next){
 			Frame.title('Frame.later with delay');
 			next();
 		});
@@ -35,51 +35,44 @@
 			Frame.title('Frame.NOW!');
 			next();
 		});
-		Frame([
-			function(next){
-				Frame.title('array function 1 started');
-				setTimeout(function(){
-					Frame.title('array function 1 finished');
-					next();
-				}, 2000)
-			},
-			function(next){
-				Frame.title('array function 2');
+		Frame(function(next){
+			Frame.title('Function started');
+			setTimeout(function(){
+				Frame.title('Function finished');
 				next();
-			}
-		]);
+			}, 1600)
+		});
 		
 		// Variable passing examples
 
 		Frame(function(callback, context){
 			Frame.title('Example of passing in variables');
 
-			Frame.log('variables can be passed to Frame.');
+			Frame.log('variables can be passed to a Frame when created');
 			Frame.log('context should be this');
 			Frame.log(context);
 
-			callback(123);
+			callback('foo');
 		}, this);
 
-		Frame(function(callback, someNumber){
+		Frame(function(callback, someValue){
 			
 			Frame.log('variables can also be passed through the callback');
-			Frame.log('someNumber should equal 123');
-			Frame.log(someNumber);
-			Frame.log('this is often called a waterfall');
+			Frame.log('someValue should equal foo');
+			Frame.log(someValue);
 
-			callback('waterfall value');
+			callback('waterfall value 1', 'waterfall value 2');
 		});
 
 		Frame(function(callback, context, waterfall){
 			
 			Frame.log('when both are used the arguments are concatinated');
-			Frame.log([ context, waterfall ]);
+			Frame.log(Array.prototype.splice.call(arguments, 1));
 
 			callback();
-		}, 'context value');
+		}, 'context value 1', 'context value 2');
 
-		Frame(function(){
+		Frame.later(function(){
 
 			Frame.report(); // report on script execution speeds, in debug version only
 			Frame();

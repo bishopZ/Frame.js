@@ -126,7 +126,7 @@
 			Frame.machineSpeed = Math.ceil(Frame.testDuration/_ticks);
 			if (Frame.machineSpeed < 1) { Frame.machineSpeed = 1; }
 			Frame.resetTimeout();
-			Frame.log('Speed test complete, Machine Speed: '+ Frame.machineSpeed + ', Timeout: '+ Frame.timeout);
+			Frame.log('Speed test complete, Speed Rating: '+ Frame.machineSpeed + ', Timeout set to: '+ Frame.timeout);
 			if (typeof a === 'function') { a.apply(Frame, _makeArray(arguments).splice(1)) }
 		}, Frame.testDuration);
 		return 'Speed Test running...';
