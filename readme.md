@@ -5,7 +5,7 @@ Frame.js is a function sequencer, job manager and library loader for Javascript 
 
 Despite the benefits of non-blocking asynchronous code execution in Javascript, endless chains of callback functions make for unreadable code and difficult to control applications. 
 
-While many function sequencers exist, such as <a href="https://github.com/caolan/async">async</a>, <a href="https://github.com/substack/node-seq">Seq</a>, and <a href="https://github.com/it-ony/flow.js/blob/master/lib/flow.js">flow.js</a>, Frame.js is focused on application level synchronous function management, includes a library loader to mix-and-match between remote scripts, local scripts, and functions. Frame also provides a set of basic debugging and unit testing tools. 
+While many function sequencers exist, such as <a href="https://github.com/caolan/async">async</a>, <a href="https://github.com/substack/node-seq">Seq</a>, and <a href="https://github.com/it-ony/flow.js/blob/master/lib/flow.js">flow.js</a>, Frame.js is focused on application-level synchronous function management, and includes a library loader to mix-and-match between remote scripts, local scripts, and functions. Frame also provides a set of basic debugging and unit testing tools. 
 
 And it clocks in at just under 10k.
 
@@ -185,6 +185,13 @@ A capitalized first letter in Javascript often indicates a class rather than an 
 
 License
 ----------------
-Licensed under the Creative Commons BY-SA 3.0  
+LAB.js (LABjs :: Loading And Blocking JavaScript)
+v2.0.3 (c) Kyle Simpson
+MIT License, Creative Commons BY-SA 3.0  
+http://creativecommons.org/licenses/by-sa/3.0/nl/
+
+Frame.js (Javascript Job Manager)
+v1.0 (c) Bishop Zareh
+MIT License, Creative Commons BY-SA 3.0  
 http://creativecommons.org/licenses/by-sa/3.0/nl/
 
