@@ -11,7 +11,7 @@
 		// Library loader examples
 
 		Frame('http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js', function(next){
-			// Frame.debug = 3; to see titles in console
+			// set Frame.debug = 3 or higher to see titles in console
 			Frame.title('jQuery loaded callback');
 			next();
 		}); 
@@ -28,7 +28,7 @@
 		});
 		Frame.later(function(){
 			Frame.log("what happens if you dont call the callback? (function times out)");
-			Frame.log("Frame.debug = 2; to see errors in the console");
+			Frame.log("set Frame.debug = 2 or higher to see errors in the console");
 		});
 		Frame.now(function(next){
 			Frame.title('Frame.NOW!');

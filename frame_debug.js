@@ -24,7 +24,7 @@
 				case 'string': Frame.lib.apply(null, args); break;
 				case 'number': Frame.soon.apply(null, _rewrap.apply(null, args)); break;
 				case 'function': Frame.soon.apply(null, args);  break;
-				case 'undefined': Frame.next();  break; 
+				case 'undefined': Frame.next.apply(null, args);  break; 
 				default: 
 					args.unshift('Unidentified input: '); 
 					Frame.error.apply(null, args); 
@@ -101,16 +101,16 @@
 	var _speed	= false; // unit test
 	var _speeds	= []; 	
 	
-	Frame.running 				= false;
-	Frame.last 					= false;
-	Frame.useTimeout 			= true;
+	Frame.running               = false;
+	Frame.last                  = false;
+	Frame.useTimeout            = true;
 	Frame.overrideTimeoutLength = false;
-	Frame.initialTimeout 		= 250;
-	Frame.testDuration 			= 1000;
-	Frame.machineSpeed 			= 3; // higher is slower
-	Frame.timeout 				= Frame.initialTimeout * Frame.machineSpeed;
-	Frame.keeperSteps 			= 5;
-	Frame.keeperDuration  		= Frame.timeout / Frame.keeperSteps;
+	Frame.initialTimeout        = 250;
+	Frame.testDuration          = 1000;
+	Frame.machineSpeed          = 3; // higher is slower
+	Frame.timeout               = Frame.initialTimeout * Frame.machineSpeed;
+	Frame.keeperSteps           = 5;
+	Frame.keeperDuration        = Frame.timeout / Frame.keeperSteps;
 	
 	Frame.resetTimeout = function(){
 		Frame.timeout = (Frame.overrideTimeoutLength) 
@@ -136,7 +136,7 @@
 	}
 
 	// Speed report
-	Frame.report = function(){ Frame.log(_speeds); }
+	Frame.report = function(){ Frame.log('speeds ', _speeds.splice(1)); }
 
 	//////////////////
 	/////  Internals
@@ -192,14 +192,15 @@
 
 	Frame.queue = function(){ return _queue.concat(_later); } // returns the existing queue
 	Frame.args = function(){ return _qArgs.concat(_lArgs); } // returns the existing queue
-	Frame.length = function(){ return _queue.length + _later.length; } // returns length of the queue
+	Frame.len = 
+	Frame.count = function(){ return (_queue.length + _later.length); } // returns length of the queue
 
 	Frame.soon = function(a){ // add function to queue
 		var args = _makeArray(arguments);
 		if (typeof a === 'number') { return Frame.apply(null, args); } 
 		else if (typeof a ==='function'){ 
 			_qArgs.push(args.splice(1));
-			if (Frame.debug > 4){ Frame.log('Frame added soon', args); }
+			if (Frame.debug > 4){ Frame.log('Frame added soon', Frame.count()); }
 			return _queue.push(a); 
 		} 
 
@@ -211,7 +212,7 @@
 		if (typeof a === 'number') { return Frame.now.apply(null, _rewrap.apply(null, args)); } 
 		else if(typeof a ==='function'){ 
 			_qArgs.unshift(args.splice(1));
-			if (Frame.debug > 4){ Frame.log('Frame added now', args); }
+			if (Frame.debug > 4){ Frame.log('Frame added now', Frame.count()); }
 			return _queue.unshift(a); 
 		}
 		return false;
@@ -222,7 +223,7 @@
 		if (typeof a === 'number') { return Frame.later.apply(null, _rewrap.apply(null, args)); } 
 		else if(typeof a ==='function'){ 
 			_lArgs.push(args.splice(1));
-			if (Frame.debug > 4){ Frame.log('Frame added later', args); } 
+			if (Frame.debug > 4){ Frame.log('Frame added later', Frame.count()); } 
 			return _later.push(a); 			
 		}
 		return false;
@@ -289,20 +290,6 @@
 	Frame.errors = [];
 	Frame.stack = [];
 	
-	// helper
-	var _optional = function (){ 
-		for (var a=0; a<arguments.length; a++) {
-			if (typeof arguments[a] !== 'undefined' && arguments[a] !== null) { 
-				if (String(arguments[a]) !== 'NaN') {
-					return arguments[a];	// if a default set with param
-				}
-			} 
-		}
-		return ''; // if all else fails, return an empty string
-	}
-
-	console = _optional(console, {}); // since everything is in try/catch, this is enough
-
 	Frame.log = function(){ 
 		var args = _makeArray(arguments);
 		Frame.stack.push(arguments);
@@ -332,10 +319,8 @@
 	};
 
 	
-
-	
 	///////////////////////////////////////////////////////
-	// init timeouts
+	// Start it up!
 	
 	Frame.resetTimeout();
 	
