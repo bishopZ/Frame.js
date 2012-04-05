@@ -119,17 +119,19 @@
 
 	// Machine Speed Test
 	Frame.speedTest = function (a){
-		var _ticks = 1;
-		var _ticker = setInterval(function(){ _ticks++; }, 1);
-		setTimeout(function(){
-			_ticker = clearInterval(_ticker); _ticker = false;
-			Frame.machineSpeed = Math.ceil(Frame.testDuration/_ticks);
-			if (Frame.machineSpeed < 1) { Frame.machineSpeed = 1; }
-			Frame.resetTimeout();
-			Frame.log('Speed test complete, Speed Rating: '+ Frame.machineSpeed + ', Timeout set to: '+ Frame.timeout);
-			if (typeof a === 'function') { a.apply(Frame, _makeArray(arguments).splice(1)) }
-		}, Frame.testDuration);
-		return 'Speed Test running...';
+		if (Frame.useTimeout) {
+			var _ticks = 1;
+			var _ticker = setInterval(function(){ _ticks++; }, 1);
+			setTimeout(function(){
+				_ticker = clearInterval(_ticker); _ticker = false;
+				Frame.machineSpeed = Math.ceil(Frame.testDuration/_ticks);
+				if (Frame.machineSpeed < 1) { Frame.machineSpeed = 1; }
+				Frame.resetTimeout();
+				Frame.log('Speed test complete, Speed Rating: '+ Frame.machineSpeed + ', Timeout set to: '+ Frame.timeout);
+				if (typeof a === 'function') { a.apply(Frame, _makeArray(arguments).splice(1)) }
+			}, Frame.testDuration);
+			return 'Speed Test running...';
+		}
 	}
 
 	// Speed report
@@ -156,13 +158,15 @@
 		_clear();
 
 		// promise keeper
-		_timer = setInterval(function(){_speed++;}, 1);
-		_keeper = setInterval(function(){
-			if (_speed > Frame.timeout){
-				Frame.error('Timed out after '+_speed, Frame.last);
-				Frame();
-			}
-		}, Frame.keeperDuration );
+		if (Frame.useTimeout) {
+			_timer = setInterval(function(){_speed++;}, 1);
+			_keeper = setInterval(function(){
+				if (_speed > Frame.timeout){
+					Frame.error('Timed out after '+_speed, Frame.last);
+					Frame();
+				}
+			}, Frame.keeperDuration );
+		}
 	}
 
 	// Unit is done!
@@ -294,7 +298,7 @@
 			try {
 				console.log.apply(console, args);
 			} catch(e) {
-				Frame.errors.push(args);
+				Frame.errors.push(args.shift(e));
 			}
 		}
 	};

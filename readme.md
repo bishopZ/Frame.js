@@ -1,4 +1,4 @@
-Frame.js
+Frame.js Quickstart
 ============
 
 Frame.js is a function sequencer, job manager and library loader for Javascript applications. 
