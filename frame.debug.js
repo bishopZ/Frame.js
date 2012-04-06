@@ -52,9 +52,11 @@
 	}
 
 	// TODO: parallels
+	// TODO: yepnope
+
 
 	// for production version 
-	// var Fn = global.Frame;
+	// var Fn = Frame;
 	// var no = function(){}; 
 
 
@@ -62,6 +64,18 @@
 	// Library loader
 
 	var _libs = [];
+
+	// Init Lib Loader
+	// add existing script tags to the list of libraries 
+	var existing = document.getElementsByTagName( "script" );
+	for(i in existing){
+		if(typeof existing[i].hasAttribute !== 'undefined'){
+			if (existing[i].hasAttribute("src")){
+				_libs.push(existing[i].getAttribute('src')); 
+			}
+		}
+	}
+
 	Frame.LAB = $LAB; // direct access to $LAB, for convenience
 	Frame.libs = 
 	Frame.library = function(){ return _libs; }; // return list of loaded libs
@@ -87,9 +101,8 @@
 		}
 	} 
 	
-	// TODO: doc.getElementsByTagName( "script" )
-	// TODO: yepnope
-
+	
+	
 	///////////////////////////////////////////////////////
 	// Unit testing
 	
@@ -102,17 +115,17 @@
 	Frame.last                  = false;
 	Frame.useTimeout            = true;
 	Frame.overrideTimeoutLength = false;
-	Frame.initialTimeout        = 250;
-	Frame.testDuration          = 1000;
+	Frame.baseTimeout           = 265;
+	Frame.testDuration          = 1250;
 	Frame.machineSpeed          = 3; // higher is slower
-	Frame.timeout               = Frame.initialTimeout * Frame.machineSpeed;
+	Frame.timeout               = Frame.baseTimeout * Frame.machineSpeed;
 	Frame.keeperSteps           = 5;
 	Frame.keeperDuration        = Frame.timeout / Frame.keeperSteps;
 	
 	Frame.resetTimeout = function(){
 		Frame.timeout = (Frame.overrideTimeoutLength) 
 			? Frame.overrideTimeoutLength 
-			: Frame.initialTimeout * Frame.machineSpeed;
+			: Frame.baseTimeout * Frame.machineSpeed;
 		Frame.keeperDuration = Frame.timeout / Frame.keeperSteps;
 		return Frame.timeout;
 	}
@@ -251,6 +264,7 @@
 		}
 	} 
 	
+	Frame.go =
 	Frame.begin =
 	Frame.start =
 	Frame.init = function(){ // start Frame queue

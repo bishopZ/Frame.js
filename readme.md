@@ -27,7 +27,7 @@ Add a callback:
 		Frame();
 	});
 
-Get a list of loaded Libs (only includes those loaded with Frame)
+Get the list of libraries that have completed loading, including those added as &lt;script&gt; tags prior to Frame loading.
 
 	console.log( Frame.libs() );
 

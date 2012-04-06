@@ -41,27 +41,42 @@ Same as Frame(path, [function]).
 
 # Frame.libs(), Frame.library() 
 
-Both of these functions return the list of libraries that have completed loading.
+Both of these functions return the list of libraries that have completed loading, including those added as &lt;script&gt; tags.
 
 # Frame.LAB = $LAB
 
-This is an interface to $LAB from inside Frame. 
+This is an interface to $LAB from inside Frame, for convenience.
 
 
 Sequencing Functions
 ----------------
 
-# Frame.begin(), Frame.start(), Frame.init()
+# Frame.begin(), Frame.start(), Frame.init(), Frame.go()
 
-All three of these functions do the same thing. They launch the Frame queue. After adding functions to Frame, Frame.init() is called one time to start running the functions. Mutiple calls to Frame.init() have no effect if Frame is already running.
+All of these functions do the same thing. They launch the Frame queue. After adding functions to Frame, Frame.init() is called one time to start running the functions. Mutiple calls to Frame.init() have no effect if Frame is already running.
 
 # Frame.soon( function ), Frame.soon( number, function )
 
-The same as Frame(function) and Frame(number, function)
+The same as Frame(function) and Frame(number, function), adds a function to the queue.
 
 # Frame.now( function ), Frame.now( number, function )
 
-The same as soon, except that the function is prepended to the beginning of the queue. The now function is used to run a script as soon as the current queue item has completed. This approach provides better load balancing than Javascript does by itself.
+The same as Frame.soon, except that the function is prepended to the beginning of the queue. Frame.now is used to run a script as soon as the current queue item has completed. This approach provides better load balancing than Javascript does if you called the function outright.
+
+For instance, this will crash most browsers:
+
+	for(var i=0; i<1000; i++){
+		$.ajax('myserver.api', { data:i, type:'post' });
+	}
+
+While this will not:
+
+	for(var i=0; i<1000; i++){
+		Frame(function(){
+			$.ajax('myserver.api', { data:i, type:'post', complete:Frame });
+		});
+	}
+	Frame.start();
 
 # Frame.later( function ), Frame.later( number, function )
 
