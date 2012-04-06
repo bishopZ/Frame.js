@@ -30,7 +30,7 @@
 				break;
 			}
 		}
-	}
+	};
 
 	// helper for arrays
 	var _makeArray = function(a) { return Array.prototype.slice.call(a, 0); }
@@ -48,7 +48,7 @@
 			}, delay); 
 		});
 		return props;
-	}
+	};
 
 	// TODO: parallels
 	// TODO: yepnope
@@ -73,7 +73,7 @@
 				_libs.push(existing[i].getAttribute('src')); 
 			}
 		}
-	}
+	};
 
 	Frame.LAB = $LAB; // direct access to $LAB, for convenience
 	Frame.libs = 
@@ -99,7 +99,7 @@
 			if (typeof b == 'function') { b(function(){}, a); }
 		}
 		return args;
-	} 
+	}; 
 	
 	
 	
@@ -128,7 +128,7 @@
 			: Frame.baseTimeout * Frame.machineSpeed;
 		Frame.keeperDuration = Frame.timeout / Frame.keeperSteps;
 		return Frame.timeout;
-	}
+	};
 
 	// Machine Speed Test
 	Frame.speedTest = function (a){
@@ -145,7 +145,7 @@
 			}, Frame.testDuration);
 			return 'Speed Test running...';
 		}
-	}
+	};
 
 	// Speed report
 	Frame.report = function(){ Frame.log('speeds ', _speeds.splice(1)); }
@@ -180,20 +180,20 @@
 				}
 			}, Frame.keeperDuration );
 		}
-	}
+	};
 
 	// Unit is done!
 	var _stop = function(){
 		if(Frame.debug > 3) { Frame.log('---- Frame done ----'); } // debug
 		_clear();
 		Frame.running = false; 
-	}
+	};
 	
 	// Clear intervals
 	var _clear = function(){
 		_keeper = clearInterval(_keeper); _keeper = false; // oddly this seems like the best way to clear an interval
 		_timer = clearInterval(_timer); _timer = false;
-	}
+	};
 
 
 	///////////////////////////////////////////////////////
@@ -218,7 +218,20 @@
 			return _queue.push(a); 
 		} 
 		return false;
-	}
+	};
+
+	Frame.bump = 
+	Frame.double = function(a){ // add function to queue
+		var args = _makeArray(arguments);
+		if (typeof a ==='function'){ 
+			if (Frame.debug > 4){ Frame.log('Frame doubled', args); };
+			Frame(function(next){
+				Frame.apply(null, args);
+				next();
+			});
+		}
+		return args;
+	};
 
 	Frame.now = function(a){ // prepend to queue
 		var args = _makeArray(arguments);
@@ -229,7 +242,7 @@
 			return _queue.unshift(a); 
 		}
 		return false;
-	}
+	};
 
 	Frame.later = function(a){ // run when main queue is empty
 		var args = _makeArray(arguments);
@@ -240,7 +253,7 @@
 			return _later.push(a); 			
 		}
 		return false;
-	} 
+	};
 
 	Frame.next = function(a){ // go to next item in queue
 		var args = _makeArray(arguments);
@@ -261,7 +274,7 @@
 			_stop();
 			return false;
 		}
-	} 
+	}; 
 	
 	Frame.go =
 	Frame.begin =
@@ -291,7 +304,7 @@
 			_stop(); // doubled up here for safety
 			return false;
 		}
-	} 
+	}; 
 
 	///////////////////////////////////////////////////////
 	// Debug suite (debug version only)

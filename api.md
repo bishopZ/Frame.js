@@ -82,6 +82,10 @@ While this will not:
 
 Functions added with Frame.later run after the "soon" queue is empty. This is used to queue up less important tasks that only need run after the main functionality has been established. For instance, Frame() functions might build an HTML page, while Frame.later() would preload images that might appear based on user interaction.
 
+# Frame.bump(), Frame.double()
+
+These functions add a function that adds a function to the queue. Basically, Frame.double adds the function to the end of the soon queue at the time it is run, and still before the later queue. This only becomes useful with multiple nested Frame sequences. 
+
 # Frame.queue()
 
 Returns the current array of functions in Frame's queue.

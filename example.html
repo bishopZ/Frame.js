@@ -72,11 +72,16 @@
 			callback();
 		}, 'context value 1', 'context value 2');
 
+		// report on script execution speeds, in debug version only
 		Frame.later(function(){
 
-			Frame.report(); // report on script execution speeds, in debug version only
+			Frame.report(); 
 			Frame();
-		})
+		});
+
+		// some tricks
+		
+
 
 		Frame.start(); // same as Frame.init()
 
