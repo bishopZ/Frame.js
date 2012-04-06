@@ -221,15 +221,13 @@
 	};
 
 	Frame.bump = 
-	Frame.double = function(a){ // add function to queue
+	Frame.double = function(){ // add function to queue
 		var args = _makeArray(arguments);
-		if (typeof a ==='function'){ 
-			if (Frame.debug > 4){ Frame.log('Frame doubled', args); };
-			Frame(function(next){
-				Frame.apply(null, args);
-				next();
-			});
-		}
+		if (Frame.debug > 4){ Frame.log('Frame doubled', args); };
+		Frame(function(next){
+			Frame.apply(null, args);
+			next();
+		});
 		return args;
 	};
 
