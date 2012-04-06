@@ -5,7 +5,7 @@ Frame.js is a function sequencer, job manager and library loader for Javascript 
 
 Despite the benefits of non-blocking asynchronous code execution in Javascript, endless chains of callback functions make for unreadable code and difficult to control applications. 
 
-While many function sequencers exist, such as <a href="https://github.com/caolan/async">async</a>, <a href="https://github.com/substack/node-seq">Seq</a>, and <a href="https://github.com/it-ony/flow.js/blob/master/lib/flow.js">flow.js</a>, Frame.js is focused on application-level synchronous function management, and includes a library loader to mix-and-match between remote scripts, local scripts, and functions. Frame also provides a set of basic debugging and unit testing tools. 
+While many function sequencers exist, such as <a href="https://github.com/caolan/async">async</a>, <a href="https://github.com/substack/node-seq">Seq</a>, and <a href="https://github.com/it-ony/flow.js/blob/master/lib/flow.js">flow.js</a>, Frame.js is focused on application-level synchronous function management, and includes a library loader to mix-and-match between remote scripts, local scripts, and functions. Frame also provides a basic set of debugging and unit testing tools. 
 
 And it clocks in at just under 10k.
 
@@ -51,13 +51,14 @@ Sequence functions:
 Add a pause before a function runs: (occassionally handy, sometimes crucial)
 
 	Frame(100, function(){
-		// function runs after 100ms after it is queued up
+		// function runs 100ms after it is queued up
 		// ...
 		Frame(); 
 	});
 
 
-Custom Callback name:
+Setting a Custom Callback Name
+
 Sometimes in complicated Javascripts, it becomes confusing which callback is called when. To help sort out such confusions you can specify the name of the callback by naming the input property.
 
 	Frame(function(next){
@@ -158,7 +159,7 @@ Example: Sequencing a series of AJAX requests
 FAQ: How is Frame different than $(document).ready()?
 ----------------
 
-JQuery's document queue is non-blocking. Frame is designed to handle multiple asynchronous events such as AJAX requests, sequence multi-element page updates, and html animation.
+JQuery's document queue is non-blocking. It does not wait for callbacks. Frame on the other hand, is designed to handle multiple *asynchronous* events such as AJAX requests, sequence multi-element page updates, and sophisticated html animation.
 
 
 FAQ: How is Frame different than $().queue()?
@@ -170,7 +171,7 @@ Actually Frame is very close to jQuery's queue in usage and purpose, but differe
 FAQ: How is Frame.lib() different than $LAB.script()?
 ----------------
 
-$LAB is loaded with Frame, but using $LAB instead of Frame.lib() does not provide the advatages of Frame.lib(). $LAB is able to do pairings of synchronous and asynchronous library loading. Frame only does synchronous. $LAB does not provide a list of libraries that have been loaded, while Frame.libs() does. 
+$LAB is able to do pairings of synchronous and asynchronous library loading. Frame only does synchronous. $LAB does not provide a list of libraries that have been loaded, while Frame.libs() does. 
 
 
 A Note about Naming
