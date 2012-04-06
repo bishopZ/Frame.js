@@ -38,15 +38,13 @@ Sequencing
 Sequence functions:
 
 	Frame(function(){
-		// function runs first
-		// ...
+		// function runs first ...
 		Frame(); // callback to move to next function in queue
 	});
 	Frame('http://load/some/remote/library.js');
 	Frame('/some/local/library.js');
 	Frame(function(){
-		// function runs forth, after both libraries are loaded
-		// ...
+		// function runs forth, after both libraries are loaded ...
 		Frame(); 
 	});
 
