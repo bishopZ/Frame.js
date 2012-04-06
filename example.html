@@ -40,7 +40,7 @@
 			setTimeout(function(){
 				Frame.title('Function finished');
 				next();
-			}, 1600)
+			}, 1600);
 		});
 		
 		// Variable passing examples
@@ -64,7 +64,7 @@
 			callback('waterfall value 1', 'waterfall value 2');
 		});
 
-		Frame(function(callback){
+		Frame(function(callback){ // both waterfall and context args recieved
 			
 			Frame.log('when both are used, the arguments are concatinated');
 			Frame.log(Array.prototype.splice.call(arguments, 1));
@@ -80,7 +80,7 @@
 		});
 
 		// some tricks
-		
+		// ...
 
 
 		Frame.start(); // same as Frame.init()
