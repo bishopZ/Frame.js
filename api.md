@@ -63,7 +63,7 @@ The same as Frame(function) and Frame(number, function), adds a function to the 
 
 The same as Frame.soon, except that the function is prepended to the beginning of the queue. Frame.now is used to run a script as quickly as possible, right after the current Frame function has completed. This approach provides better load balancing than Javascript does if you called the function outright.
 
-For instance, this will crash most browsers:
+For instance, this will cause most browsers to hang:
 
 	for(var i=0; i<1000; i++){
 		$.ajax('myserver.api', { data:i, type:'post' });

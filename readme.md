@@ -82,20 +82,17 @@ Launch the Frame queue by calling init().
 
 	Frame.init();
 
-Frequently init() only needs to be called once, but it may need to be called again if an event handler adds functions to Frame after the original Frame queue has already ended. init() does nothing if Frame is already running.
+Frequently init() only needs to be called once, but occasionally, with nested Frames it may necissary to call Frame.init again. If an event handler adds functions to Frame after the original Frame queue has already ended, Frame.init() will restart the queue. If Frame is already running, Frame.init does nothing.
 
 	Frame(function(){
-		// function A
-		// ...
+		// function A ...
 		Frame();
 	});
 	Frame(function(){
-		// function B
-		// ...
+		// function B ...
 		$('#button').click(function(){
 			Frame(function(){
-				// Response to event
-				// ...
+				// Response to event ...
 				Frame();
 			});
 			Frame.init(); 	// init needs to be called here only because "click" is an event
@@ -109,13 +106,13 @@ Frequently init() only needs to be called once, but it may need to be called aga
 Debug vs Production Versions
 ----------------
 
-Load Frame.js in debug mode by loading the debug version:
+Load Frame.js debug version by loading the debug file:
 
 	<script type="text/javascript" src="/js/frame_debug.js"></script>
 
-Load Frame.js in production mode by loading the production version:
+Load Frame.js production version by loading the production file:
 
-	<script type="text/javascript" src="/js/frame.js"></script>
+	<script type="text/javascript" src="/js/frame.min.js"></script>
 
 The debug version provides basic unit testing and debugging tools. All of which is disabled or silenced in the production version (replaced with empty functions). 
 
@@ -141,6 +138,7 @@ Example: Loading jQuery with Frame
 	Frame('http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'); 
 	Frame(function(){
 		Frame.log('jQuery is loaded', $(document) );
+		// jQuery code...
 		Frame();
 	});
 	Frame.init()
@@ -180,7 +178,7 @@ $LAB is loaded with Frame, but using $LAB instead of Frame.lib() does not provid
 A Note about Naming
 ----------------
 
-A capitalized first letter in Javascript often indicates a class rather than an object. While Frame is an object, it works much like a class, and plays an important enough role that we elected for the name Frame() rather than frame(). 
+A capitalized first letter in Javascript often indicates a class rather than an object. While Frame is an object, it works much like a class, and can play an important enough role in JS application design that we elected for the name Frame() rather than frame(). 
 
 
 License
