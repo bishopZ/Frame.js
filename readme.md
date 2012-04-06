@@ -7,7 +7,7 @@ Despite the benefits of non-blocking asynchronous code execution in Javascript, 
 
 While many function sequencers exist, such as <a href="https://github.com/caolan/async">async</a>, <a href="https://github.com/substack/node-seq">Seq</a>, and <a href="https://github.com/it-ony/flow.js/blob/master/lib/flow.js">flow.js</a>, Frame.js is focused on application-level synchronous function management, and includes a library loader to mix-and-match between remote scripts, local scripts, and functions. Frame also provides a basic set of debugging and unit testing tools. 
 
-And it clocks in at just under 10k.
+Frame is kind of like Node's Require.js, but for the Frontend, with debugging tools, and it clocks in at just under 10k.
 
 
 Library Loader
@@ -159,7 +159,7 @@ Example: Sequencing a series of AJAX requests
 FAQ: How is Frame different than $(document).ready()?
 ----------------
 
-JQuery's document queue is non-blocking. It does not wait for callbacks. Frame on the other hand, is designed to handle multiple *asynchronous* events such as AJAX requests, sequence multi-element page updates, and sophisticated html animation.
+JQuery's document queue is non-blocking. It does not wait for callbacks. Frame on the other hand, is designed to handle multiple *asynchronous* events such as AJAX requests, sequenced multi-element DOM updates and sophisticated HTML animation.
 
 
 FAQ: How is Frame different than $().queue()?
