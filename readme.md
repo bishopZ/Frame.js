@@ -13,9 +13,9 @@ And it clocks in at just under 10k.
 Library Loader
 ----------------
 
-Frame includes and acts as an interface for the $LAB library loader. https://github.com/getify/LABjs
+Frame includes, and acts as an interface for, the $LAB library loader. https://github.com/getify/LABjs
 
-Load libraries from local or remote servers:
+You can use Frame to load script libraries from local or remote servers:
 
 	Frame('http://path/to/some/library.js');
 
@@ -23,8 +23,8 @@ Add a callback:
 
 	Frame('somelib.js', function(){
 		// runs after library is loaded
-		// ...
-		Frame();
+		// do stuff
+		Frame(); // trigger to run the next Frame
 	});
 
 Get the list of libraries that have completed loading, including those added as &lt;script&gt; tags prior to Frame loading.
@@ -82,7 +82,7 @@ Launch the Frame queue by calling init().
 
 	Frame.init();
 
-Frequently init() only needs to be called once, but it may need to be called again if an event handler adds functions to Frame after the original Frame queue has already ended. init() does nothing is Frame is already running.
+Frequently init() only needs to be called once, but it may need to be called again if an event handler adds functions to Frame after the original Frame queue has already ended. init() does nothing if Frame is already running.
 
 	Frame(function(){
 		// function A
@@ -120,8 +120,8 @@ Load Frame.js in production mode by loading the production version:
 The debug version provides basic unit testing and debugging tools. All of which is disabled or silenced in the production version (replaced with empty functions). 
 
 	Frame.title('Building Navigation'); // announces major application steps in console
-	Frame.log('Building Navigation', someVariable); // a more cross-browser version of console.log
-	Frame.error('Building Navigation'); // announces errors in console
+	Frame.log('nav items', navItems); // mostly the same as console.log
+	Frame.error('something went wrong', error); // announces errors in console with special formatting
 
 These are all similar to console.log, but are silent in production mode so that developer's console comments can be left in the code without being echoed to end users. This is sorely needed in large JS applications.
 

@@ -19,18 +19,17 @@
 			for(var v in a) { args[0] = a[v]; Frame.apply(null, args); }; 
 		} else {
 			switch(typeof a){
-				case 'string': Frame.lib.apply(null, args); break;
-				case 'number': Frame.soon.apply(null, _rewrap.apply(null, args)); break;
-				case 'function': Frame.soon.apply(null, args);  break;
-				case 'undefined': Frame.next.apply(null, args);  break; 
+				case 'string': return Frame.lib.apply(null, args); break;
+				case 'number': return Frame.soon.apply(null, _rewrap.apply(null, args)); break;
+				case 'function': return Frame.soon.apply(null, args);  break;
+				case 'undefined': return Frame.next.apply(null, args);  break; 
 				default: 
 					args.unshift('Unidentified input: '); 
 					Frame.error.apply(null, args); 
-					return false; 
+					return args; 
 				break;
 			}
 		}
-		return true;
 	}
 
 	// helper for arrays
@@ -99,6 +98,7 @@
 			Frame.log('Library already loaded, skipping: '+ a);  
 			if (typeof b == 'function') { b(function(){}, a); }
 		}
+		return args;
 	} 
 	
 	
@@ -217,7 +217,6 @@
 			if (Frame.debug > 4){ Frame.log('Frame added soon', Frame.count()); }
 			return _queue.push(a); 
 		} 
-
 		return false;
 	}
 
@@ -285,6 +284,7 @@
 	 			_clear();
 	 			Frame.error(e, Frame.last);
 	 			Frame(); // move on
+	 			return e;
 	 		}
 	 		return true;
 		} else {
@@ -307,7 +307,7 @@
 	
 	Frame.log = function(){ 
 		var args = _makeArray(arguments);
-		Frame.stack.push(arguments);
+		Frame.stack.push(args);
 		if (Frame.debug > 0) {
 			try {
 				console.log.apply(console, args);

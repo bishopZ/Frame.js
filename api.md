@@ -19,7 +19,11 @@ Add a frame to the queue.
 Triggers the next frame in the queue, used as a callback.
 
 	Frame(function(){
-		// do stuff
+		// runs first
+		Frame();
+	});
+	Frame(function(){
+		// runs after the previous function
 		Frame();
 	});
 
@@ -29,7 +33,7 @@ Load a library from the web. Path can either be local or remote. An optional cal
 
 # Frame( number, function )
 
-Add a number of milliseconds before a function to cause a delay before the function is run.
+Add a number of milliseconds before a function to cause a delay before the function is run. Sometimes necissary, occasionally crucial. Easier than wrapping the whole thing in a setTimeout.
 
 
 Library Loader
@@ -37,15 +41,11 @@ Library Loader
 
 # Frame.lib( path, [function] ), Frame.load( path, [function] )
 
-Same as Frame(path, [function]).
+Same as Frame(path, [function]). Loads a library from a path, with an optional callback function.
 
 # Frame.libs(), Frame.library() 
 
-Both of these functions return the list of libraries that have completed loading, including those added as &lt;script&gt; tags.
-
-# Frame.LAB = $LAB
-
-This is an interface to $LAB from inside Frame, for convenience.
+These functions return the list of libraries that have completed loading, including those added as &lt;script&gt; tags.
 
 
 Sequencing Functions
@@ -53,7 +53,7 @@ Sequencing Functions
 
 # Frame.begin(), Frame.start(), Frame.init(), Frame.go()
 
-All of these functions do the same thing. They launch the Frame queue. After adding functions to Frame, Frame.init() is called one time to start running the functions. Mutiple calls to Frame.init() have no effect if Frame is already running.
+All of these functions do the same thing. They launch the Frame queue. After adding functions to Frame, Frame.init() is called one time to start running the functions. Calls to Frame.init() have no effect if Frame is already running.
 
 # Frame.soon( function ), Frame.soon( number, function )
 
@@ -61,7 +61,7 @@ The same as Frame(function) and Frame(number, function), adds a function to the 
 
 # Frame.now( function ), Frame.now( number, function )
 
-The same as Frame.soon, except that the function is prepended to the beginning of the queue. Frame.now is used to run a script as soon as the current queue item has completed. This approach provides better load balancing than Javascript does if you called the function outright.
+The same as Frame.soon, except that the function is prepended to the beginning of the queue. Frame.now is used to run a script as quickly as possible, right after the current Frame function has completed. This approach provides better load balancing than Javascript does if you called the function outright.
 
 For instance, this will crash most browsers:
 
@@ -80,7 +80,7 @@ While this will not:
 
 # Frame.later( function ), Frame.later( number, function )
 
-Functions added with later run after the soon queue is empty. This is used to queue up less important tasks that only need run after the main functionality has been established. For instance, Frame() functions might build an HTML page, while Frame.later() would preload images that might appear based on user interaction.
+Functions added with Frame.later run after the "soon" queue is empty. This is used to queue up less important tasks that only need run after the main functionality has been established. For instance, Frame() functions might build an HTML page, while Frame.later() would preload images that might appear based on user interaction.
 
 # Frame.queue()
 
@@ -163,11 +163,11 @@ How long should the speed test last?
 
 # Frame.machineSpeed = 3
 
-After the speed test completes this number acts a general rating as to how well the end user's computer is keeping up with Javascript.
+After the speed test completes this number acts a general rating as to how well the end user's computer is keeping up with Javascript. Run Frame.speedTest again to recalculate this indicator.
 
 # Frame.timeout = 750
 
-The current time Frame will wait for a function to complete.
+The current time Frame will wait for a function to complete. Run Frame.speedTest again to recalculate this indicator.
 
 
 

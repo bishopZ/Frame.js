@@ -27,10 +27,10 @@
 			}
 		}
 		return true;
-	}
+	};
 
 	// helper for arrays
-	var _makeArray = function(a) { return Array.prototype.slice.call(a, 0); }
+	var _makeArray = function(a) { return Array.prototype.slice.call(a, 0); };
 
 	// helper for setTimeouts
 	var _rewrap = function(){ 
@@ -45,7 +45,7 @@
 			}, delay); 
 		});
 		return props;
-	}
+	};
 
 	// TODO: parallels
 	// TODO: yepnope
@@ -70,7 +70,7 @@
 				_libs.push(existing[i].getAttribute('src')); 
 			}
 		}
-	}
+	};
 
 	Fn.LAB = $LAB; // direct access to $LAB, for convenience
 	Fn.libs = 
@@ -95,7 +95,7 @@
 			
 			if (typeof b == 'function') { b(function(){}, a); }
 		}
-	} 
+	};
 	
 	
 	
@@ -124,7 +124,7 @@
 			: Fn.baseTimeout * Fn.machineSpeed;
 		Fn.keeperDuration = Fn.timeout / Fn.keeperSteps;
 		return Fn.timeout;
-	}
+	};
 
 	// Machine Speed Test
 	Fn.speedTest = function (a){
@@ -140,7 +140,7 @@
 			}, Fn.testDuration);
 			return 'Speed Test running...';
 		}
-	}
+	};
 
 	// Speed report
 	Fn.report = no;
@@ -159,20 +159,20 @@
 
 		// promise keeper
 		
-	}
+	};
 
 	// Unit is done!
 	var _stop = function(){
 		
 		_clear();
 		Fn.running = false; 
-	}
+	};
 	
 	// Clear intervals
 	var _clear = function(){
 		_keeper = clearInterval(_keeper); _keeper = false; // oddly this seems like the best way to clear an interval
 		_timer = clearInterval(_timer); _timer = false;
-	}
+	};
 
 
 	///////////////////////////////////////////////////////
@@ -198,7 +198,7 @@
 		} 
 
 		return false;
-	}
+	};
 
 	Fn.now = function(a){ // prepend to queue
 		var args = _makeArray(arguments);
@@ -209,7 +209,7 @@
 			return _queue.unshift(a); 
 		}
 		return false;
-	}
+	};
 
 	Fn.later = function(a){ // run when main queue is empty
 		var args = _makeArray(arguments);
@@ -220,7 +220,7 @@
 			return _later.push(a); 			
 		}
 		return false;
-	} 
+	};
 
 	Fn.next = function(a){ // go to next item in queue
 		var args = _makeArray(arguments);
@@ -241,7 +241,7 @@
 			_stop();
 			return false;
 		}
-	} 
+	};
 	
 	Fn.go =
 	Fn.begin =
@@ -270,7 +270,7 @@
 			_stop(); // doubled up here for safety
 			return false;
 		}
-	} 
+	};
 
 	///////////////////////////////////////////////////////
 	// Debug suite (debug version only)
