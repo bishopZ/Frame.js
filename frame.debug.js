@@ -33,7 +33,7 @@
 	};
 
 	// helper for arrays
-	var _makeArray = function(a) { return Array.prototype.slice.call(a, 0); }
+	var _makeArray = function(a) { return [].slice.call(a, 0); }
 
 	// helper for setTimeouts
 	var _rewrap = function(){ 
