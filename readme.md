@@ -5,15 +5,17 @@ Frame.js is a function sequencer, job manager and library loader for Javascript 
 
 Despite the benefits of non-blocking asynchronous code execution in Javascript, endless chains of callback functions make for unreadable code and difficult to control applications. 
 
-While many function sequencers exist, such as <a href="https://github.com/caolan/async">async</a>, <a href="https://github.com/substack/node-seq">Seq</a>, and <a href="https://github.com/it-ony/flow.js/blob/master/lib/flow.js">flow.js</a>, Frame.js is focused on application-level synchronous function management, and includes a library loader to mix-and-match between remote scripts, local scripts, and functions, and provides a basic set of debugging and unit testing tools. 
+While many function sequencers exist, such as <a href="https://github.com/caolan/async">async</a>, <a href="https://github.com/substack/node-seq">Seq</a>, and <a href="https://github.com/it-ony/flow.js/blob/master/lib/flow.js">flow.js</a>, Frame.js is focused on application-level synchronous function management, includes a library loader to mix-and-match between remote scripts, local scripts, and functions, and provides a basic set of debugging and unit testing tools. 
 
 Frame is kind of like Node's Require.js, but for the Frontend, with debugging tools, and it clocks in at just under 10k.
 
 "looks cool, nice job :)"
 -Kyle Simpson, Author of LABjs
+via Twitter
 
 "lookin' good! Async control flow is a beast."
 -Alex Sexton, Modernizr contributor, yayQuery co-host, Author of YepNope
+via Twitter
 
 
 Library Loader
@@ -88,7 +90,7 @@ Frequently init() only needs to be called once, but occasionally, with nested Fr
 
 Custom Callback Names
 
-In complicated Javascripts, it is often confusing which callback is being called when. To help sort out such confusions you can specify the name of the callback by naming the input property of the input function.
+In complicated applications, it is often confusing which callback is being called when. To help sort out such confusions you can specify the name of the callback by naming the input property of the input function.
 
 	Frame(function(next){
 		// do stuff
@@ -99,7 +101,7 @@ In complicated Javascripts, it is often confusing which callback is being called
 The first input property is always the callback function, but more variables can also be passed in as additional arguments of Frame().
 
 	Frame(function(next, context, someVar){
-		// "this" is passed in as "context"
+		// "this" is passed in as "context" (injected scope)
 		// "someVar" is passed in as "someVar"
 		// ...
 		next(); 
@@ -151,11 +153,23 @@ Example: Loading jQuery with Frame
 Example: Sequencing a series of AJAX requests
 ----------------
 
+	var listOfAjaxObjects = [ {}, {}, ... ]; // an array of objects for $.ajax
 	$.each(listOfAjaxObjects, function(i, item){
-		Frame(function(){
-			item.complete = Frame;
+		Frame(function(nextFrame){ // a custom callback name must used here 
+		// this allows the ajax response objects to cascade to the next Frame (waterfall)
+			item.complete = nextFrame;
 			$.ajax(item);
 		});
+	});
+	Frame(function(callback){
+		var ajaxResponses = [];
+		$.each(arguments, function(i, arg){
+			if(i!==1){ // the first argument is always the callback function
+				ajaxResponses.push(arg.responseText);
+			}
+		});
+		// do stuff with the response from ajax
+		callback();
 	});
 	Frame.init()
 
