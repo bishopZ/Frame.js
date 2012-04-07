@@ -5,17 +5,23 @@ Frame.js is a function sequencer, job manager and library loader for Javascript 
 
 Despite the benefits of non-blocking asynchronous code execution in Javascript, endless chains of callback functions make for unreadable code and difficult to control applications. 
 
-While many function sequencers exist, such as <a href="https://github.com/caolan/async">async</a>, <a href="https://github.com/substack/node-seq">Seq</a>, and <a href="https://github.com/it-ony/flow.js/blob/master/lib/flow.js">flow.js</a>, Frame.js is focused on application-level synchronous function management, and includes a library loader to mix-and-match between remote scripts, local scripts, and functions. Frame also provides a basic set of debugging and unit testing tools. 
+While many function sequencers exist, such as <a href="https://github.com/caolan/async">async</a>, <a href="https://github.com/substack/node-seq">Seq</a>, and <a href="https://github.com/it-ony/flow.js/blob/master/lib/flow.js">flow.js</a>, Frame.js is focused on application-level synchronous function management, and includes a library loader to mix-and-match between remote scripts, local scripts, and functions, and provides a basic set of debugging and unit testing tools. 
 
 Frame is kind of like Node's Require.js, but for the Frontend, with debugging tools, and it clocks in at just under 10k.
+
+"looks cool, nice job :)"
+-Kyle Simpson, Author of LABjs
+
+"lookin' good! Async control flow is a beast."
+-Alex Sexton, Modernizr contributor, yayQuery co-host, Author of YepNope
 
 
 Library Loader
 ----------------
 
-Frame includes, and acts as an interface for, the $LAB library loader. https://github.com/getify/LABjs
+Frame includes and acts as an interface for the LABjs library loader. https://github.com/getify/LABjs
 
-You can use Frame to load script libraries from local or remote servers:
+Because of this, you can use Frame to load script libraries from both local and remote servers, cross-browser, with no cross-site scripting restrictions:
 
 	Frame('http://path/to/some/library.js');
 
@@ -56,27 +62,6 @@ Add a pause before a function runs: (occassionally handy, sometimes crucial)
 		Frame(); 
 	});
 
-
-Setting a Custom Callback Name
-
-Sometimes in complicated Javascripts, it becomes confusing which callback is called when. To help sort out such confusions you can specify the name of the callback by naming the input property.
-
-	Frame(function(next){
-		// do stuff
-		next(); // custom callback name
-	});
-
-
-Pass in a context or other variables:
-
-	Frame(function(next, context, someVar){
-		// "this" is passed in as "context"
-		// "someVar" is passed in as "someVar"
-		// ...
-		next(); 
-	}, this, someVar);
-
-
 Launch the Frame queue by calling init(). 
 
 	Frame.init();
@@ -99,6 +84,26 @@ Frequently init() only needs to be called once, but occasionally, with nested Fr
 		Frame();
 	});
 	Frame.init();
+
+
+Custom Callback Names
+
+In complicated Javascripts, it is often confusing which callback is being called when. To help sort out such confusions you can specify the name of the callback by naming the input property of the input function.
+
+	Frame(function(next){
+		// do stuff
+		next(); // custom callback name
+	});
+
+
+The first input property is always the callback function, but more variables can also be passed in as additional arguments of Frame().
+
+	Frame(function(next, context, someVar){
+		// "this" is passed in as "context"
+		// "someVar" is passed in as "someVar"
+		// ...
+		next(); 
+	}, this, someVar);
 
 
 
