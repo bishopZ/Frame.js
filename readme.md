@@ -230,9 +230,10 @@ Compared to a similar thing in Frame.js:
 	Frame(function(next, ajaxResponse){
 		userRole = ajaxResponse.responseText.userRole;
 	});
-	Frame(userRole); 
+	Frame(userRole); // a path to some js file names the same as the user role
 	Frame(function(next){
-		exports[userRole].drawUser(next);
+		// userRole.js would have to add an object to exports or something like
+		exports[userRole].drawUser(next); 
 	});
 	Frame(function(next){
 		// do more stuff after user is drawn (notice the indent level)
@@ -242,9 +243,7 @@ The Frame version is more readable and modular in that it is easier to add to an
 
 Require.js is great, except that it offers no support for performance management between modules. While callback function always follow the library being loaded, two modules can both be resource intensive and they will both continue to try and run full force at the same time.
 
-Frame on the other hand offers a way of managing all the javascript running on a given page. Certianly a poorly written script can run wildly out of control in either, but Frame has specific ways to identify and deal with performance problems across the entire application.
-
-Notice the Frame.now() call in the above example. Frame has three ways to classify the importance of a particular javascript task: now, soon, and later. Frame creates a function buffer that run above Javascript's builtin function stack, and provides much better management than the browser or require.js.
+Frame on the other hand offers a way of managing all the javascript running on a given page. Certianly a poorly written script can run wildly out of control in either, but Frame has specific ways to identify and deal with performance problems across the entire application. Frame creates a function buffer that run above Javascript's builtin function stack, and provides much better management than the browser or require.js.
 
 
 FAQ: How is Frame different than $(document).ready()?
