@@ -162,46 +162,22 @@ This will cause most browsers to hang, and the response objects to come back in 
 		});
 	}
 
-This example will not cause the browser to hang. It converts the series of AJAX requests into a synchronous series where each request waits until the previous one returns.
-
+This example will not cause the browser to hang, and the response objects will be in the same order as the request objects.
+	
+	var responses = [];
 	for(var i=0; i<1000; i++){
 		Frame(function(callback){
-			$.ajax('myserver.api', { data:i, type:'post', complete:callback });
+			$.ajax('myserver.api', { 
+				data:i, 
+				type:'post', 
+				complete:function(response) { 
+					responses.push(response);
+					callback();
+				}
+			});
 		});
 	}
 	Frame.start();
-
-In addition to synchronizing the AJAX requests, Frame also cascades or waterfalls the response objects.To do this you must name the Frame callback. Any arguments passed to that callback will the be appended as arguments to the next.
-
-	// an array of objects for $.ajax
-	var listOfAjaxObjects = [ {}, {}, ... ]; 
-	$.each(listOfAjaxObjects, function(i, item){
-		// a custom callback name must used here 
-		// this allows the ajax response objects to cascade to the next Frame (called a waterfall)
-		Frame(function(nextFrame){ 
-			item.complete = function(response){
-				// do stuff with this individual response ...
-				// convert argument to an array and remove first element
-				var args = [].splice.call(argument, 1); 
-				nextFrame.apply(null, args.unshift(response));
-			}
-			$.ajax(item);
-		});
-	});
-	// one final Frame to run after all the AJAX has finished
-	Frame(function(callback){
-		var responses = [];
-		// convert argument to an array and remove first element
-		// the first argument is always the callback function
-		var args = [].splice.call(argument, 1); 
-		$.each(args, function(i, arg){
-				responses.push(arg);
-		});
-		// do stuff with the responses from all the AJAX requests ...
-		callback();
-	});
-	Frame.init();
-
 
 
 FAQ: How is Frame different than $(document).ready()?
