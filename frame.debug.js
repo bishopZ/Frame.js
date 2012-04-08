@@ -355,4 +355,4 @@
 
 	Frame.title('Frame Finished Loading');
 
-})(this.exports = this.exports || this || {});
+})(this);
