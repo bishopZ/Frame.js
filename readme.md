@@ -9,14 +9,9 @@ While many function sequencers exist, such as <a href="https://github.com/caolan
 
 Frame is kind of like Node's Require.js, but for the Frontend, with debugging tools, and it clocks in at just under 10k.
 
-"looks cool, nice job :)"
--Kyle Simpson, Author of LABjs
-
-"lookin' good! Async control flow is a beast."
--Alex Sexton, Modernizr contributor, yayQuery co-host, Author of YepNope
-
-"It looks pretty neat :) Asynchronous control flow is never easy to get right, but this certainly seems like it would help!"
-- Addy Osmani, jQuery contributor, http://addyosmani.com
+"looks cool, nice job :)" -Kyle Simpson, Author of LABjs
+"lookin' good! Async control flow is a beast." -Alex Sexton, Modernizr contributor, yayQuery co-host, Author of YepNope
+"It looks pretty neat :) Asynchronous control flow is never easy to get right, but this certainly seems like it would help!" - Addy Osmani, jQuery contributor, http://addyosmani.com
 
 
 Library Loader
@@ -154,25 +149,58 @@ Example: Loading jQuery with Frame
 Example: Sequencing a series of AJAX requests
 ----------------
 
-	var listOfAjaxObjects = [ {}, {}, ... ]; // an array of objects for $.ajax
+This will cause most browsers to hang, and the response objects to come back in the order they were received, not the order they were sent. 
+
+	var responses = [];
+	for(var i=0; i<1000; i++){
+		$.ajax('myserver.api', { 
+			data: i, 
+			type: 'post', 
+			complete: function(response) { 
+				responses.push(response);
+			} 
+		});
+	}
+
+This example will not cause the browser to hang. It converts the series of AJAX requests into a synchronous series where each request waits until the previous one returns.
+
+	for(var i=0; i<1000; i++){
+		Frame(function(callback){
+			$.ajax('myserver.api', { data:i, type:'post', complete:callback });
+		});
+	}
+	Frame.start();
+
+In addition to synchronizing the AJAX requests, Frame also cascades or waterfalls the response objects.To do this you must name the Frame callback. Any arguments passed to that callback will the be appended as arguments to the next.
+
+	// an array of objects for $.ajax
+	var listOfAjaxObjects = [ {}, {}, ... ]; 
 	$.each(listOfAjaxObjects, function(i, item){
-		Frame(function(nextFrame){ // a custom callback name must used here 
+		// a custom callback name must used here 
 		// this allows the ajax response objects to cascade to the next Frame (called a waterfall)
-			item.complete = nextFrame;
+		Frame(function(nextFrame){ 
+			item.complete = function(response){
+				// do stuff with this individual response ...
+				// convert argument to an array and remove first element
+				var args = [].splice.call(argument, 1); 
+				nextFrame.apply(null, args.unshift(response));
+			}
 			$.ajax(item);
 		});
 	});
+	// one final Frame to run after all the AJAX has finished
 	Frame(function(callback){
-		var ajaxResponses = [];
-		$.each(arguments, function(i, arg){
-			if(i!==0){ // the first argument is always the callback function
-				ajaxResponses.push(arg.responseText);
-			}
+		var responses = [];
+		// convert argument to an array and remove first element
+		// the first argument is always the callback function
+		var args = [].splice.call(argument, 1); 
+		$.each(args, function(i, arg){
+				responses.push(arg);
 		});
-		// do stuff with the response from ajax
+		// do stuff with the responses from all the AJAX requests ...
 		callback();
 	});
-	Frame.init()
+	Frame.init();
 
 
 
