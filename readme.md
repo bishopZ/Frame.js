@@ -231,12 +231,14 @@ Compared to a similar thing in Frame.js:
 	Frame(function(next, ajaxResponse){
 		userRole = ajaxResponse.responseText.userRole;
 	});
-	Frame(userRole + '.js'); // a path to some js file named the same as the user role
-	Frame(function(next){
-		// someRole.js would have to add an object to exports with the same name as the file
-		exports[userRole].drawUser(next); 
+	Frame(function(){
+		Frame(userRole + '.js'); // a path to some js file named the same as the user role
+		Frame(function(next){
+			// someRole.js would have to add an object to exports with the same name as the file
+			exports[userRole].drawUser(next); 
+		});
 	});
-	Frame(function(next){
+	Frame.later(function(next){
 		// do more stuff after user is drawn (notice the indent level)
 	});
 
