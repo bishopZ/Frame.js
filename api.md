@@ -59,19 +59,6 @@ If you pass in an array or object, Frame.lib loads them in parallel and afterwar
 
 These functions return the list of libraries that have completed loading, including those added as &lt;script&gt; tags.
 
-# Frame.script([ array of strings ])
-
-Frame.script() can be used to load scripts in parallel like require.js. Unlike most of Frame's other functions, Frame.script does not automatically continue the to the next Frame, so it must be wrapped in a Frame() with a custom callback name.
-
-	Frame(function(callback){
-	    Frame.script([
-	        'http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js',
-	        '/lib/src/jquery-ui-1.8.18.custom.min.js', 
-	        '/lib/src/jquery.tmpl.js',
-	        '/lib/framework.js'
-	    ]).wait(callback);
-	});
-
 
 Sequencing Functions
 ----------------

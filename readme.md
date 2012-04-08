@@ -7,13 +7,13 @@ Despite the benefits of non-blocking asynchronous code execution in Javascript, 
 
 While many function sequencers exist, such as <a href="https://github.com/caolan/async">async</a>, <a href="https://github.com/substack/node-seq">Seq</a>, and <a href="https://github.com/it-ony/flow.js/blob/master/lib/flow.js">flow.js</a>, Frame.js is focused on application-level synchronous function management, includes a library loader to mix-and-match between remote scripts, local scripts, and functions, and provides a basic set of debugging and unit testing tools. 
 
-Frame is kind of like Node's Require.js, but for the Frontend, with debugging tools, and it clocks in at just under 11k (compared to require.js's 25k).
+Frame is kind of like Node's Require.js, but for the Frontend, with debugging tools, and it clocks in at just under 11k (compared to require.js's minified 25k).
 
-"looks cool, nice job :)" -Kyle Simpson, Author of LABjs
+"looks cool, nice job :)" *-Kyle Simpson, Author of LABjs*
 
-"lookin' good! Async control flow is a beast." -Alex Sexton, Modernizr contributor, yayQuery co-host, Author of YepNope
+"lookin' good! Async control flow is a beast." *-Alex Sexton, Modernizr contributor, Author of YepNope*
 
-"It looks pretty neat :) Asynchronous control flow is never easy to get right, but this certainly seems like it would help!" - Addy Osmani, jQuery contributor, http://addyosmani.com
+"It looks pretty neat :) Asynchronous control flow is never easy to get right, but this certainly seems like it would help!" *- Addy Osmani, jQuery contributor, http://addyosmani.com*
 
 
 Library Loader
@@ -30,7 +30,7 @@ Add a callback:
 	Frame('somelib.js', function(){
 		// runs after library is loaded
 		// do stuff
-		Frame(); // trigger to run the next Frame
+		Frame(); // trigger the next Frame to run 
 	});
 
 Use Frame.lib to load a list of libraries asynchronously with a single callback:
@@ -175,7 +175,7 @@ This will cause most browsers to hang, and the response objects to come back in 
 		});
 	}
 
-This example will not cause the browser to hang, and the response objects will be in the same order as the request objects.
+Adding Frame in the mix will avoid browser hang, and the response objects will be stored in the same order as the request objects. 
 	
 	var responses = [];
 	for(var i=0; i<1000; i++){
@@ -230,9 +230,9 @@ Compared to a similar thing in Frame.js:
 	Frame(function(next, ajaxResponse){
 		userRole = ajaxResponse.responseText.userRole;
 	});
-	Frame(userRole); // a path to some js file names the same as the user role
+	Frame(userRole + '.js'); // a path to some js file named the same as the user role
 	Frame(function(next){
-		// userRole.js would have to add an object to exports or something like
+		// someRole.js would have to add an object to exports with the same name as the file
 		exports[userRole].drawUser(next); 
 	});
 	Frame(function(next){
@@ -241,21 +241,17 @@ Compared to a similar thing in Frame.js:
 
 The Frame version is more readable and modular in that it is easier to add to and take away pieces. The require.js version is simply not scalable in that the more callbacks you have, the more difficult the code becomes to read and use.
 
-Require.js is great, except that it offers no support for performance management between modules. While callback function always follow the library being loaded, two modules can both be resource intensive and they will both continue to try and run full force at the same time.
+Require.js is great, except that it offers no support for performance management between modules. While callback functions always follow the library being loaded, two modules can both be resource intensive and they will both continue to try and run full-force at the same time.
 
 Frame on the other hand offers a way of managing all the javascript running on a given page. Certianly a poorly written script can run wildly out of control in either, but Frame has specific ways to identify and deal with performance problems across the entire application. Frame creates a function buffer that run above Javascript's builtin function stack, and provides much better management than the browser or require.js.
 
 
-FAQ: How is Frame different than $(document).ready()?
+FAQ: How is Frame different than $(document).ready() and $().queue()?
 ----------------
 
 JQuery's document queue is non-blocking. It does not wait for callbacks. Frame on the other hand, is designed to handle multiple *asynchronous* events such as AJAX requests, sequenced multi-element DOM updates and sophisticated HTML animation.
 
-
-FAQ: How is Frame different than $().queue()?
-----------------
-
-Actually Frame is very close to jQuery's queue in usage and purpose, but different in several specific ways. Better error handling, automatic queue recovery on script failures, and built-in unit testing mechanisms are a few examples.
+Frame is very close to jQuery's $.queue in usage and purpose, but different in several specific ways. Better error handling, automatic queue recovery on script failures, and built-in unit testing mechanisms are a few examples.
 
 
 A Note about Naming
