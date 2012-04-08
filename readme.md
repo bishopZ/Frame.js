@@ -1,13 +1,13 @@
 Frame.js Quickstart
 ============
 
-Frame.js is a function sequencer, job manager and library loader for Javascript applications. 
+Frame.js is a function sequencer, job manager and library loader for frontend Javascript applications. 
 
 Despite the benefits of non-blocking asynchronous code execution in Javascript, endless chains of callback functions make for unreadable code and difficult to control applications. 
 
 While many function sequencers exist, such as <a href="https://github.com/caolan/async">async</a>, <a href="https://github.com/substack/node-seq">Seq</a>, and <a href="https://github.com/it-ony/flow.js/blob/master/lib/flow.js">flow.js</a>, Frame.js is focused on application-level synchronous function management, includes a library loader to mix-and-match between remote scripts, local scripts, and functions, and provides a basic set of debugging and unit testing tools. 
 
-Frame is kind of like Node's Require.js, but for the Frontend, with debugging tools, and it clocks in at just under 11k (compared to require.js's minified 25k).
+Frame is like require.js, but designed for the frontend, with debugging tools, and it clocks in at just under 11k (compared to require.js's minified 25k).
 
 "looks cool, nice job :)" *-Kyle Simpson, Author of LABjs*
 
@@ -97,9 +97,9 @@ Frequently init() only needs to be called once, but occasionally, with nested Fr
 	Frame.init();
 
 
-Custom Callback Names
+**Custom Callback Names**
 
-In complicated applications, it is often confusing which callback is being called when. To help sort out such confusions you can specify the name of the callback by naming the input property of the input function.
+In complicated applications, it is often confusing which callback is being called when. To help sort out such confusions you can specify the name of the callback by naming the first input property of the input function.
 
 	Frame(function(next){
 		// do stuff
@@ -110,7 +110,7 @@ In complicated applications, it is often confusing which callback is being calle
 The first input property is always the callback function, but more variables can also be passed in as additional arguments of Frame().
 
 	Frame(function(next, context, someVar){
-		// "this" is passed in as "context" (injected scope)
+		// "this" is passed in as "context" (how to inject scope)
 		// "someVar" is passed in as "someVar"
 		// ...
 		next(); 
@@ -219,7 +219,8 @@ Compared to a similar thing in Frame.js:
 
 	var id = 123;
 	var userRole = '';
-	Frame(["page.js", "nav.js"]);
+	var exports = [];
+	Frame.lib(["page.js", "nav.js"]);
 	Frame(function(next){
 		$.ajax({
 			url:'authenticate.api',
