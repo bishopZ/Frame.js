@@ -10,7 +10,9 @@ While many function sequencers exist, such as <a href="https://github.com/caolan
 Frame is kind of like Node's Require.js, but for the Frontend, with debugging tools, and it clocks in at just under 10k.
 
 "looks cool, nice job :)" -Kyle Simpson, Author of LABjs
+
 "lookin' good! Async control flow is a beast." -Alex Sexton, Modernizr contributor, yayQuery co-host, Author of YepNope
+
 "It looks pretty neat :) Asynchronous control flow is never easy to get right, but this certainly seems like it would help!" - Addy Osmani, jQuery contributor, http://addyosmani.com
 
 
@@ -31,7 +33,7 @@ Add a callback:
 		Frame(); // trigger to run the next Frame
 	});
 
-To load a list of libraries asynchronously with a single callback, use Frame.lib:
+Use Frame.lib to load a list of libraries asynchronously with a single callback:
 
 	Frame.lib([ // three libraries loaded asynchronously
 	    '/lib/src/jquery-ui-1.8.18.custom.min.js', 
@@ -194,7 +196,7 @@ This example will not cause the browser to hang, and the response objects will b
 FAQ: Why is Frame better than require.js?
 ----------------
 
-Require.js is a through library loader but, it does not deal with the callback problem.
+Require.js is a thorough library loader but, it does not deal with the callback problem.
 
 Consider this script using require.js:
 
