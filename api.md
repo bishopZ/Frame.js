@@ -39,13 +39,38 @@ Add a number of milliseconds before a function to cause a delay before the funct
 Library Loader
 ----------------
 
-# Frame.lib( path, [function] ), Frame.load( path, [function] )
+# Frame.lib( path, [function] ), Frame.lib( array of paths, [function] )
 
-Same as Frame(path, [function]). Loads a library from a path, with an optional callback function.
+Same as Frame(path, [function]) for strings. Loads a library from a path, with an optional callback function.
+
+If you pass in an array or object, Frame.lib loads them in parallel and afterwards either calls the optional callback property or moves to the next Frame. Frame.lib only works with remote libraries and can not be used to sequence functions.
+
+	Frame.lib([ // three libraries loaded asynchronously
+	    '/lib/src/jquery-ui-1.8.18.custom.min.js', 
+	    '/lib/src/jquery.tmpl.js',
+	    '/lib/framework.js'
+	]);
+	Frame(function(){
+		// runs after all three libraries have loaded
+	});
+
 
 # Frame.libs(), Frame.library() 
 
 These functions return the list of libraries that have completed loading, including those added as &lt;script&gt; tags.
+
+# Frame.script([ array of strings ])
+
+Frame.script() can be used to load scripts in parallel like require.js. Unlike most of Frame's other functions, Frame.script does not automatically continue the to the next Frame, so it must be wrapped in a Frame() with a custom callback name.
+
+	Frame(function(callback){
+	    Frame.script([
+	        'http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js',
+	        '/lib/src/jquery-ui-1.8.18.custom.min.js', 
+	        '/lib/src/jquery.tmpl.js',
+	        '/lib/framework.js'
+	    ]).wait(callback);
+	});
 
 
 Sequencing Functions
@@ -92,7 +117,7 @@ Returns the current array of functions in Frame's queue.
 
 # Frame.args()
 
-Returns the corrisponding array of arguments to be passed to each function in Frame's queue.
+Returns the an array of arguments to be passed to each function in Frame's queue.
 
 # Frame.len(), Frame.count()
 
@@ -101,6 +126,10 @@ Returns the number of functions in Frame's queue.
 # Frame.next()
 
 This function is rarely used, but it an alternative to using Frame as a callback function. Frame() does not support "waterfall" properties, while Frame.next() does. Frame.next is the function called when a custom callback is named. (see examples.html for more detail)
+
+# Frame.array()
+
+Helper that converts an arguments object into an array.
 
 
 Debug Properties

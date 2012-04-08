@@ -31,6 +31,17 @@ Add a callback:
 		Frame(); // trigger to run the next Frame
 	});
 
+To load a list of libraries asynchronously with a single callback, use Frame.lib:
+
+	Frame.lib([ // three libraries loaded asynchronously
+	    '/lib/src/jquery-ui-1.8.18.custom.min.js', 
+	    '/lib/src/jquery.tmpl.js',
+	    '/lib/framework.js' 
+	]);
+	Frame(function(){
+		// runs after all three libraries have loaded
+	});
+
 Get the list of libraries that have completed loading, including those added as &lt;script&gt; tags prior to Frame loading.
 
 	console.log( Frame.libs() );
@@ -178,6 +189,59 @@ This example will not cause the browser to hang, and the response objects will b
 		});
 	}
 	Frame.start();
+
+
+FAQ: Why is Frame better than require.js?
+----------------
+
+Require.js is a through library loader but, it does not deal with the callback problem.
+
+Consider this script using require.js:
+
+	var id = 123;
+	require(["page.js", "nav.js"], function() {
+		$.ajax({
+			url:'authenticate.api',
+			data: id,
+			success: function(ajaxResponse){
+				require(ajaxResponse.userRole, function(userModule){
+					userModule.drawUser(function(){
+						// do more stuff after user is drawn (notice the indent level)
+					});
+				});
+			}
+		});
+	});
+
+Compared to a similar thing in Frame.js:
+
+	var id = 123;
+	Frame(["page.js", "nav.js"]);
+	Frame(function(next){
+		$.ajax({
+			url:'authenticate.api',
+			data: id,
+			success: next
+		});
+	});
+	Frame(function(next, ajaxResponse){
+		Frame.now(ajaxResponse.userRole);
+		next();
+	});
+	Frame(function(next){
+		exports[userRole].drawUser(next);
+	});
+	Frame(function(next){
+		// do more stuff after user is drawn (notice the indent level)
+	});
+
+The Frame version is more readable and modular in that it is easier to add to and take away pieces. The require.js version is simply not scalable in that the more callbacks you have to more difficult the code becomes to read and use.
+
+Require.js is great, except that it offers no support for performance management between modules. While callback function always follow the library being loaded, two modules can both be resource intensive and they will both continue to try and run full force at the same time.
+
+Frame on the other hand offers a way of managing all the javascript running on a given page. Certianly a poorly written script can run wildly out of control in either, but Frame has specific ways to identify and deal with performance problems across the entire application.
+
+Notice the Frame.now() call in the above example. Frame has three ways to classify the importance of a particular javascript task: now, soon, and later. Frame creates a function buffer that run above Javascript's builtin function stack, and provides much better management than the browser or require.js.
 
 
 FAQ: How is Frame different than $(document).ready()?

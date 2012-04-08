@@ -32,8 +32,13 @@
 		}
 	};
 
+	// for production version 
+	// var Fn = Frame;
+	// var no = function(){}; 
+
 	// helper for arrays
-	var _makeArray = function(a) { return [].slice.call(a, 0); }
+	var _makeArray = function(a) { return [].slice.call(a, 0); };
+	Frame.array = _makeArray;
 
 	// helper for setTimeouts
 	var _rewrap = function(){ 
@@ -50,13 +55,9 @@
 		return props;
 	};
 
-	// TODO: parallels
-	// TODO: yepnope
-
-	// for production version 
-	// var Fn = Frame;
-	// var no = function(){}; 
-
+	// TODO: better parallels?
+	// TODO: yepnope?
+	
 	///////////////////////////////////////////////////////
 	// Library loader
 
@@ -73,17 +74,36 @@
 		}
 	};
 
+	Frame.script = $LAB.script;
+
 	Frame.libs = 
 	Frame.library = function(){ return _libs; }; // return list of loaded libs
-	Frame.lib =
-	Frame.load = function(a, b){  // explicitly run $LAB
+	Frame.lib = function(a, b){  // explicitly run $LAB
 		var args = _makeArray(arguments);
 		var _loaded = false;
-		for(var v in _libs){ if (_libs[v] === a) { _loaded = true; } }
+		// process the input types differently
+		if (typeof a === 'string'){
+			for(var v in _libs){ if (_libs[v] === a) { _loaded = true; } }
+		} else if (a instanceof Array){
+			var all = 0;
+			for(var l in a){ 
+				for(var v in _libs){ 
+					if (_libs[v] === a[l]) { all++; } 
+			} }
+			if(all === a.length){ _loaded = true; }
+		} else if (typeof a === 'object' && typeof a.src !== 'undefined'){
+			for(var v in _libs){ if (_libs[v] === a.src) { _loaded = true; } }
+		}
 		if (!_loaded) {
 			Frame(function(){ 
 				$LAB.script(a).wait( function(){ 
-					_libs.push(a); 
+					if (typeof a ==='string'){
+						_libs.push(a); 
+					} else if (a instanceof Array){
+						for(var l in a){ _libs.push(a[l]); }
+					} else if (typeof a === 'object' && typeof a.src !== 'undefined'){
+						_libs.push(a.src); 
+					}
 					Frame.log('Library loaded: '+ a); 
 					if (typeof b == 'function') {
 						args[0] = Frame.next; 
@@ -355,4 +375,4 @@
 
 	Frame.title('Frame Finished Loading');
 
-})(this);
+})(exports = this.exports || this || {});
