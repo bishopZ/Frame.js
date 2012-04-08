@@ -53,11 +53,9 @@
 	// TODO: parallels
 	// TODO: yepnope
 
-
 	// for production version 
 	// var Fn = Frame;
 	// var no = function(){}; 
-
 
 	///////////////////////////////////////////////////////
 	// Library loader
@@ -75,7 +73,6 @@
 		}
 	};
 
-	Frame.LAB = $LAB; // direct access to $LAB, for convenience
 	Frame.libs = 
 	Frame.library = function(){ return _libs; }; // return list of loaded libs
 	Frame.lib =
@@ -358,4 +355,4 @@
 
 	Frame.title('Frame Finished Loading');
 
-})(this);
+})(this.exports = this.exports || this || {});
