@@ -11,11 +11,12 @@ Frame is kind of like Node's Require.js, but for the Frontend, with debugging to
 
 "looks cool, nice job :)"
 -Kyle Simpson, Author of LABjs
-via Twitter
 
 "lookin' good! Async control flow is a beast."
 -Alex Sexton, Modernizr contributor, yayQuery co-host, Author of YepNope
-via Twitter
+
+"It looks pretty neat :) Asynchronous control flow is never easy to get right, but this certainly seems like it would help!"
+- Addy Osmani, jQuery contributor, http://addyosmani.com
 
 
 Library Loader
@@ -156,7 +157,7 @@ Example: Sequencing a series of AJAX requests
 	var listOfAjaxObjects = [ {}, {}, ... ]; // an array of objects for $.ajax
 	$.each(listOfAjaxObjects, function(i, item){
 		Frame(function(nextFrame){ // a custom callback name must used here 
-		// this allows the ajax response objects to cascade to the next Frame (waterfall)
+		// this allows the ajax response objects to cascade to the next Frame (called a waterfall)
 			item.complete = nextFrame;
 			$.ajax(item);
 		});
@@ -164,7 +165,7 @@ Example: Sequencing a series of AJAX requests
 	Frame(function(callback){
 		var ajaxResponses = [];
 		$.each(arguments, function(i, arg){
-			if(i!==1){ // the first argument is always the callback function
+			if(i!==0){ // the first argument is always the callback function
 				ajaxResponses.push(arg.responseText);
 			}
 		});
@@ -196,7 +197,7 @@ $LAB is able to do pairings of synchronous and asynchronous library loading. Fra
 A Note about Naming
 ----------------
 
-A capitalized first letter in Javascript often indicates a class rather than an object. While Frame is an object, it works much like a class, and can play an important enough role in JS application design that we elected for the name Frame() rather than frame(). 
+A capitalized first letter in Javascript often indicates a class rather than an object. While Frame is an object, it works much like a class because it is a factory object. Frame can play an important enough role in JS application design that we elected for the name Frame() rather than frame(). 
 
 
 License

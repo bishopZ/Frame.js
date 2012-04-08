@@ -72,8 +72,8 @@ For instance, this will cause most browsers to hang:
 While this will not:
 
 	for(var i=0; i<1000; i++){
-		Frame(function(){
-			$.ajax('myserver.api', { data:i, type:'post', complete:Frame });
+		Frame(function(callback){
+			$.ajax('myserver.api', { data:i, type:'post', complete:callback });
 		});
 	}
 	Frame.start();
@@ -84,7 +84,7 @@ Functions added with Frame.later run after the "soon" queue is empty. This is us
 
 # Frame.bump( [arguments] ), Frame.double( [arguments] )
 
-These functions add a function that adds a function to the queue. Basically, Frame.double adds the function to the end of the soon queue at the time it is run, and still before the later queue. This only becomes useful with multiple nested Frame sequences. 
+Basically, Frame.double adds the function to the end of the soon queue twice, but still before the later queue. It's really only useful in nested Frame sequences.
 
 # Frame.queue()
 
