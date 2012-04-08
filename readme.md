@@ -7,7 +7,7 @@ Despite the benefits of non-blocking asynchronous code execution in Javascript, 
 
 While many function sequencers exist, such as <a href="https://github.com/caolan/async">async</a>, <a href="https://github.com/substack/node-seq">Seq</a>, and <a href="https://github.com/it-ony/flow.js/blob/master/lib/flow.js">flow.js</a>, Frame.js is focused on application-level synchronous function management, includes a library loader to mix-and-match between remote scripts, local scripts, and functions, and provides a basic set of debugging and unit testing tools. 
 
-Frame is kind of like Node's Require.js, but for the Frontend, with debugging tools, and it clocks in at just under 10k.
+Frame is kind of like Node's Require.js, but for the Frontend, with debugging tools, and it clocks in at just under 11k (compared to require.js's 25k).
 
 "looks cool, nice job :)" -Kyle Simpson, Author of LABjs
 
@@ -206,8 +206,8 @@ Consider this script using require.js:
 			url:'authenticate.api',
 			data: id,
 			success: function(ajaxResponse){
-				require(ajaxResponse.userRole, function(userModule){
-					userModule.drawUser(function(){
+				require(ajaxResponse.responseText.userRole, function(userModule){
+					userModule.drawUser(function(){ // yet another callback
 						// do more stuff after user is drawn (notice the indent level)
 					});
 				});
@@ -218,6 +218,7 @@ Consider this script using require.js:
 Compared to a similar thing in Frame.js:
 
 	var id = 123;
+	var userRole = '';
 	Frame(["page.js", "nav.js"]);
 	Frame(function(next){
 		$.ajax({
@@ -227,9 +228,9 @@ Compared to a similar thing in Frame.js:
 		});
 	});
 	Frame(function(next, ajaxResponse){
-		Frame.now(ajaxResponse.userRole);
-		next();
+		userRole = ajaxResponse.responseText.userRole;
 	});
+	Frame(userRole); 
 	Frame(function(next){
 		exports[userRole].drawUser(next);
 	});
@@ -237,7 +238,7 @@ Compared to a similar thing in Frame.js:
 		// do more stuff after user is drawn (notice the indent level)
 	});
 
-The Frame version is more readable and modular in that it is easier to add to and take away pieces. The require.js version is simply not scalable in that the more callbacks you have to more difficult the code becomes to read and use.
+The Frame version is more readable and modular in that it is easier to add to and take away pieces. The require.js version is simply not scalable in that the more callbacks you have, the more difficult the code becomes to read and use.
 
 Require.js is great, except that it offers no support for performance management between modules. While callback function always follow the library being loaded, two modules can both be resource intensive and they will both continue to try and run full force at the same time.
 
@@ -256,12 +257,6 @@ FAQ: How is Frame different than $().queue()?
 ----------------
 
 Actually Frame is very close to jQuery's queue in usage and purpose, but different in several specific ways. Better error handling, automatic queue recovery on script failures, and built-in unit testing mechanisms are a few examples.
-
-
-FAQ: How is Frame.lib() different than $LAB.script()?
-----------------
-
-$LAB is able to do pairings of synchronous and asynchronous library loading. Frame only does synchronous. $LAB does not provide a list of libraries that have been loaded, while Frame.libs() does. 
 
 
 A Note about Naming
