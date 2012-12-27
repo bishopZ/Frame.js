@@ -9,9 +9,9 @@ While many function sequencers exist, such as <a href="https://github.com/caolan
 
 Frame is like require.js, but designed for the frontend, with debugging tools, and it clocks in at just under 11k (compared to require.js's minified 25k).
 
-"looks cool, nice job :)" *-Kyle Simpson, Author of LABjs*
+"looks cool, nice job :)" *-Kyle Simpson, author of LABjs*
 
-"lookin' good! Async control flow is a beast." *-Alex Sexton, Modernizr contributor, Author of YepNope*
+"lookin' good! Async control flow is a beast." *-Alex Sexton, Modernizr contributor, author of YepNope*
 
 "It looks pretty neat :) Asynchronous control flow is never easy to get right, but this certainly seems like it would help!" *- Addy Osmani, jQuery contributor, http://addyosmani.com*
 
