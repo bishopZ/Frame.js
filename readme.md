@@ -1,4 +1,16 @@
-Frame.js Quickstart
+Version History
+============
+
+Dec 31st, 2012 - Updated to version 1.1!
+
+- Removed console masking. Console is now unaltered by Frame. Full access to Frame.log() and Frame.title() are still in place.
+- Resolved IE bug by changing all splice() to slice().
+- Changed useTimeout default to false rather than true.
+- Renamed Frame.double() to Frame.bump().
+- Fixed speedTest to not fail when useTimeout is set to false.
+
+
+Quickstart
 ============
 
 Frame.js is a function sequencer, job manager and library loader for frontend Javascript applications. 
@@ -118,16 +130,8 @@ The first input property is always the callback function, but more variables can
 
 
 
-Debug vs Production Versions
+Debug Helpers
 ----------------
-
-Load Frame.js debug version by loading the debug file:
-
-	<script type="text/javascript" src="/js/frame_debug.js"></script>
-
-Load Frame.js production version by loading the production file:
-
-	<script type="text/javascript" src="/js/frame.min.js"></script>
 
 The debug version provides basic unit testing and debugging tools. All of which is disabled or silenced in the production version (replaced with empty functions). 
 
@@ -135,7 +139,7 @@ The debug version provides basic unit testing and debugging tools. All of which 
 	Frame.log('nav items', navItems); // mostly the same as console.log
 	Frame.error('something went wrong', error); // announces errors in console with special formatting
 
-These are all similar to console.log, but are silent in production mode so that developer's console comments can be left in the code without being echoed to end users. This is sorely needed in large JS applications.
+These are all similar to console.log, but can be made silent in production so that developer's console comments can be left in the code without being echoed to end users. This is sorely needed in large JS applications.
 
 The Debug Level changes which debug messages are sent to console. The level can be changed as the application runs.
 

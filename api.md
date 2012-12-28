@@ -1,4 +1,4 @@
-Frame.js API Reference
+Frame.js v1.1 API Reference
 ============
 
 Namespace
@@ -94,9 +94,9 @@ While this will not:
 
 Functions added with Frame.later run after the "soon" queue is empty. This is used to queue up less important tasks that only need run after the main functionality has been established. For instance, Frame() functions might build an HTML page, while Frame.later() would preload images that might appear based on user interaction.
 
-# Frame.bump( [arguments] ), Frame.double( [arguments] )
+# Frame.bump( [arguments] )
 
-Basically, Frame.double adds the function to the end of the soon queue twice, but still before the later queue. It's really only useful in nested Frame sequences.
+Basically, Frame.bump adds the function to the end of the soon queue twice, but still before the later queue. It becomes useful in complex nested Frame sequences.
 
 # Frame.queue()
 
@@ -143,11 +143,11 @@ An array of the function currently running and arguments passed to it.
 
 # Frame.errors = []
 
-Frame's internal list of errors that occured while running. Debug version only.
+Frame's internal list of errors that occured while running. 
 
 # Frame.stack = []
 
-Frame's internal list of messages that occured while running. Debug version only.
+Frame's internal list of messages that occured while running. 
 
 
 Debug Functions
@@ -155,23 +155,23 @@ Debug Functions
 
 # Frame.log( [arguments] ) 
 
-Send to console if it exists and debug mode is 1 or greater. Debug version only.
+Send to console if it exists and debug mode is 1 or greater. 
 
 # Frame.error( [arguments] ) 
 
-Send to console if it exists and debug mode is 2 or greater with error formating. Debug version only.
+Send to console if it exists and debug mode is 2 or greater with error formating. 
 
 # Frame.title( [arguments] ) 
 
-Send to console if it exists and debug mode is 2 or greater with title formating. Debug version only.
+Send to console if it exists and debug mode is 2 or greater with title formating. 
 
 
 Unit Testing Properties
 ----------------
 
-# Frame.useTimeout = true
+# Frame.useTimeout = False
 
-Set to false to run without timeouts. If a function fails, Frame will simply stop.
+Set to true to set timeout limits for Frame functions. If a function fails, Frame will move on to the next frame rather than stopping.
 
 # Frame.overrideTimeoutLength = false
 
@@ -200,5 +200,5 @@ Runs a basic speed test on the end user's computer to determine how well it is p
 
 # Frame.report()
 
-Provides an array of the speeds of the functions run by Frame. Debug version only.
+Provides an array of the speeds of the functions run by Frame.
 
