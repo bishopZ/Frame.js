@@ -1,7 +1,7 @@
 Version History
 ============
 
-Dec 31st, 2012 - Updated to version 1.1!
+Dec 28th, 2012 - Updated to version 1.1!
 
 - Removed console masking. Console is now unaltered by Frame. Full access to Frame.log() and Frame.title() are still in place.
 - Resolved IE bug by changing all splice() to slice().
@@ -11,7 +11,7 @@ Dec 31st, 2012 - Updated to version 1.1!
 
 
 Quickstart
-============
+-------------
 
 Frame.js is a function sequencer, job manager and library loader for frontend Javascript applications. 
 

@@ -261,7 +261,7 @@
 
 	Frame.later = function(a){ // run when main queue is empty
 		var args = _makeArray(arguments);
-		if (typeof a === 'number') { return Frame.later.apply(null, _rewrap.apply(null, args)); }; 
+		if (typeof a === 'number') { return Frame.later.apply(null, _rewrap.apply(null, args)); }
 		else if(typeof a ==='function'){ 
 			_lArgs.push(args.slice(1));
 			if (Frame.debug > 4){ Frame.log('Frame added later', Frame.count()); }; 
