@@ -1,7 +1,23 @@
 Version History
 ============
 
-Dec 28th, 2012 - Updated to version 1.1!
+Nov 5th, 2013 - Version 2.0
+
+- Complete ground up re-write.
+- Greatly simplified syntax.
+- Added the ability to have mutiple Frame ques.
+- Added multi-threaded Frame execution, running on top of Javascripts single-threaded processer.
+- Added "tail-call optimization" to prevent increased call stacks sizes.
+- Replaced LAB.js with Require.js and made Frame fully AMD-compliant
+- Removed all console masking including Frame.log() and Frame.title() for increased compatibility and better separation of concerns.
+- Added the ability to load CSS and TEXT files inline.
+- Added ability to run any set of functions in parallel as well as series.
+- Prevented callback functions from being called twice.
+- Removed frame delay functionality.
+- Frame is no longer "stand-alone", it requires require.js, typecast.js and underscore.js.
+
+
+Dec 28th, 2012 - Version 1.1
 
 - Removed console masking. Console is now unaltered by Frame. Full access to Frame.log() and Frame.title() are still in place.
 - Resolved IE bug by changing all splice() to slice().
@@ -10,16 +26,18 @@ Dec 28th, 2012 - Updated to version 1.1!
 - Fixed speedTest to not fail when useTimeout is set to false.
 
 
+
+
 Quickstart
 -------------
 
-Frame.js is a function sequencer, job manager and library loader for frontend Javascript applications. 
+Frame.js is a function sequencer, job manager and library loader for large Javascript applications. 
 
 Despite the benefits of non-blocking asynchronous code execution in Javascript, endless chains of callback functions make for unreadable code and difficult to control applications. 
 
-While many function sequencers exist, such as <a href="https://github.com/caolan/async">async</a>, <a href="https://github.com/substack/node-seq">Seq</a>, and <a href="https://github.com/it-ony/flow.js/blob/master/lib/flow.js">flow.js</a>, Frame.js is focused on application-level synchronous function management, includes a library loader to mix-and-match between remote scripts, local scripts, and functions, and provides a basic set of debugging and unit testing tools. 
+While many function sequencers exist, such as <a href="https://github.com/caolan/async">async</a>, <a href="https://github.com/substack/node-seq">Seq</a>, and <a href="https://github.com/it-ony/flow.js/blob/master/lib/flow.js">flow.js</a>, Frame.js is focused on application-level synchronous function management, includes a library loader to mix-and-match between remote scripts, local scripts, and functions. 
 
-Frame is like require.js, but designed for the frontend, with debugging tools, and it clocks in at just under 11k (compared to require.js's minified 25k).
+Frame is a wrapper of require.js, making the sytax far easier to use and providing a host of new and essential features.
 
 "looks cool, nice job :)" *-Kyle Simpson, author of LABjs*
 
@@ -28,254 +46,317 @@ Frame is like require.js, but designed for the frontend, with debugging tools, a
 "It looks pretty neat :) Asynchronous control flow is never easy to get right, but this certainly seems like it would help!" *- Addy Osmani, jQuery contributor, http://addyosmani.com*
 
 
-Library Loader
+Frame() acts like define() but with some extras
 ----------------
 
-Frame includes and acts as an interface for the LABjs library loader. https://github.com/getify/LABjs
+Frame is a wrapper of require.js that makes the library easier to use and provides a host of new and essential features.
 
-Because of this, you can use Frame to load script libraries from both local and remote servers, cross-browser, with no cross-site scripting restrictions:
+Frame works exactly like require's define() except it places a callback as the first argument.
 
-	Frame('http://path/to/some/library.js');
-
-Add a callback:
-
-	Frame('somelib.js', function(){
-		// runs after library is loaded
-		// do stuff
-		Frame(); // trigger the next Frame to run 
+	// with require.js
+	define('moduleName', ['dep1', 'dep2'], function(dep1, dep2){
+	    // your code
+	    return module;
+	});
+	 
+	// with Frame
+	Frame('moduleName', ['dep1', 'dep2'], function(callback, dep1, dep2){
+	    // your code
+	    callback(module);
 	});
 
-Use Frame.lib to load a list of libraries asynchronously with a single callback:
 
-	Frame.lib([ // three libraries loaded asynchronously
-	    '/lib/src/jquery-ui-1.8.18.custom.min.js', 
-	    '/lib/src/jquery.tmpl.js',
-	    '/lib/framework.js' 
+Since Frame uses callback functions instead of return and creates modules as a series of functions.
+
+	Frame('moduleName', ['dep1', 'dep2'], function(callback, dep1, dep2){
+	        // runs first
+	        callback(dep1);
+	    }, 
+	    function(callback, dep1){
+	        // runs second
+	        callback();
+	});
+ 
+
+Frame waterfalls anything passed to the callback functions.
+
+	Frame('moduleName', 
+	    [ // arrays run in parallel
+	        'dep1', 
+	        'dep2', 
+	        function(callback){ callback( 'foo' ); }
+	    ],[ // but the groups of parallel activities run in series
+	        'dep3',
+	        function(callback, dep1, dep2, 'foo'){ callback(1); },
+	        function(callback, dep1, dep2, 'foo'){ callback(2); },
+	        function(callback, dep1, dep2, 'foo'){ callback(3); },
+	    ], // or just pass in a function
+	    function(callback, dep3, 1,2,3){ callback(); }
+	);
+ 
+
+Frame can also cache the module as a variable.
+
+	var module = Frame('moduleName');
+	 
+	module.add('dependencyName'); // a module name
+	module.add(function(callback){ callback(); }); // a function to run
+	module.add({ name: "joe" }); // an object of data to pass on
+	module.add([ function, function, 'dependency', function ]); // in parallel
+	 
+	module.start(); // start the module directly instead of having to call require()
+	 
+
+Not having a return value, causes Frame() to work a little different than define() when used with require:
+
+	// if you do this
+	define('moduleName', ['dep1', 'dep2'], function(dep1, dep2){
+	    // your code
+	    return module;
+	});
+	// and then this
+	require(['moduleName'], function(module){ });
+
+The module argument of require() will equal the returned module from define() and require is providing access to that object throughout the application.
+
+However in Frame, you need to specify a context to get the same response object.
+
+	var moduleQue = Frame('moduleName').start();
+	moduleQue(['dep1', 'dep2'], function(callback, dep1, dep2){
+	    var module = {};
+	    moduleQue.context(module);
+	    callback();
+	});
+	moduleQue(function(callback){ 
+	    var module = this;
+	    callback(); 
+	});
+	require(['moduleName'], function(module){ 
+	    // module === the context
+	    // not the moduleQue object
+	});
+
+Also cacheing a que and starting a que is slightly different between define() and Frame().
+
+	// in require.js
+	define('moduleName', ['dep1', 'dep2'], function(dep1, dep2){
+	    // module is defined, ie the code is loaded into the browser
+	    return module;
+	});
+	require(['moduleName'], function(module){ 
+	    // module is run, ie the code is executed
+	});
+	 
+	// in Frame
+	Frame('moduleName', ['dep1', 'dep2'], function(callback, dep1, dep2){
+	    // module is defined
+	    callback(module);
+	}).start(); // module is run
+	 
+	// and you can stop it...
+	Frame('moduleName').stop();
+	 
+	// and start it again
+	Frame('moduleName').start();
+
+
+
+
+
+Creating a simple Module with Frame()
+-------------
+
+
+	/// Simple Module \\\\
+	 
+	var myWidget = Frame('myWidget').start();
+	myWidget([ 
+	    'text!html/widgets/calculator.html', // load an html file
+	    'css!styles/widgets/calculator.css',  // load a css file
+	    { speed: 400 }
 	]);
-	Frame(function(){
-		// runs after all three libraries have loaded
+	myWidget(function(complete, template, options) {
+	    myWidget.context($('#mySelector'));
+	    $('#mySelector').html(template);
+	    $('#mySelector').fadeIn(complete, options.speed);
 	});
-
-Get the list of libraries that have completed loading, including those added as &lt;script&gt; tags prior to Frame loading.
-
-	console.log( Frame.libs() );
-
-
-Sequencing
-----------------
-
-Sequence functions:
-
-	Frame(function(){
-		// function runs first ...
-		Frame(); // callback to move to next function in queue
-	});
-	Frame('http://load/some/remote/library.js');
-	Frame('/some/local/library.js');
-	Frame(function(){
-		// function runs forth, after both libraries are loaded ...
-		Frame(); 
-	});
-
-Add a pause before a function runs: (occassionally handy, sometimes crucial)
-
-	Frame(100, function(){
-		// function runs 100ms after it is queued up
-		// ...
-		Frame(); 
-	});
-
-Launch the Frame queue by calling init(). 
-
-	Frame.init();
-
-Frequently init() only needs to be called once, but occasionally, with nested Frames it may necissary to call Frame.init again. If an event handler adds functions to Frame after the original Frame queue has already ended, Frame.init() will restart the queue. If Frame is already running, Frame.init does nothing.
-
-	Frame(function(){
-		// function A ...
-		Frame();
-	});
-	Frame(function(){
-		// function B ...
-		$('#button').click(function(){
-			Frame(function(){
-				// Response to event ...
-				Frame();
-			});
-			Frame.init(); 	// init needs to be called here only because "click" is an event
-		});
-		Frame();
-	});
-	Frame.init();
-
-
-**Custom Callback Names**
-
-In complicated applications, it is often confusing which callback is being called when. To help sort out such confusions you can specify the name of the callback by naming the first input property of the input function.
-
-	Frame(function(next){
-		// do stuff
-		next(); // custom callback name
+	myWidget(function(complete) {
+	    this.slideRight(complete);  
 	});
 
 
-The first input property is always the callback function, but more variables can also be passed in as additional arguments of Frame().
+Accessing one Module from another
+-------------
 
-	Frame(function(next, context, someVar){
-		// "this" is passed in as "context" (how to inject scope)
-		// "someVar" is passed in as "someVar"
-		// ...
-		next(); 
-	}, this, someVar);
-
-
-
-Debug Helpers
-----------------
-
-The debug version provides basic unit testing and debugging tools. All of which is disabled or silenced in the production version (replaced with empty functions). 
-
-	Frame.title('Building Navigation'); // announces major application steps in console
-	Frame.log('nav items', navItems); // mostly the same as console.log
-	Frame.error('something went wrong', error); // announces errors in console with special formatting
-
-These are all similar to console.log, but can be made silent in production so that developer's console comments can be left in the code without being echoed to end users. This is sorely needed in large JS applications.
-
-The Debug Level changes which debug messages are sent to console. The level can be changed as the application runs.
-
-	Frame.debug = 0; // silent
-	Frame.debug = 1; // log only
-	Frame.debug = 2; // logs & errors
-	Frame.debug = 3; // titles, logs & errors
-	Frame.debug = 4; // titles, logs & errors, and additional start and stop messages
-
-
-
-Example: Loading jQuery with Frame
-----------------
-
-	Frame('http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'); 
-	Frame(function(){
-		Frame.log('jQuery is loaded', $(document) );
-		// jQuery code...
-		Frame();
+	/// Another Widget that adds to myWidget's que \\\
+	 
+	var another = Frame('anotherWidget').start();
+	 
+	another( [ 'myWidget', 'jquery'] );
+	 
+	another(function(outerDone, myWidget, $){
+	    myWidget.add(function(innerDone){ 
+	        innerDone();
+	        outerDone();
+	    });
 	});
-	Frame.init()
 
 
-Example: Sequencing a series of AJAX requests
-----------------
+Creating a Backbone View Module
+-------------
 
-This will cause most browsers to hang, and the response objects to come back in the order they were received, not the order they were sent. 
+	/// Backbone Module \\\\
+	var module = Frame('CLO.widgets.calculator').start();
+	 
+	calcModule([ 'pageData', 'jquery', 'backbone', 'mustache' ]);
+	calcModule(function(complete, pageData, $, backbone, mustache) {
+	    calcModule.context( backbone.View.extend({
+	        el : '#widgets.calculator',
+	        initialize: function(template){
+	            // grab the data you need
+	            this.render(template);
+	        },
+	        render: function(template){
+	            // transform the template how you want
+	            this.$el.html( mustache(template, pageData) );
+	        },
+	        events: {
+	            // backbone events
+	            '.equals click': 'equals'
+	        },
+	        equals: function(e){
+	            // do the stuff...
+	            var _this = this;
+	            _this.$el.find('.value').html(_this.calc());
+	        },
+	        calc: function(){} //...
+	    }));
+	    // always call the callback
+	    complete();
+	});
+	calcModule([
+	    'tmpl.calculator', 
+	    'css!css/widgets/calculator.css',
+	]);
+	calcModule(function(complete, calculatorView, template, css){
+	    // intantiate the view
+	    var calculator = new this(template);
+	    // always call the callback
+	    complete();
+	});
 
-	var responses = [];
-	for(var i=0; i<1000; i++){
-		$.ajax('myserver.api', { 
-			data: i, 
-			type: 'post', 
-			complete: function(response) { 
-				responses.push(response);
-			} 
-		});
+
+A More Complex Example
+-------------
+
+	// in library.js the path to ajax.js is set
+	paths: {
+	    // ...
+	    'ajax':         'app/ajax',
+	    // ...
 	}
-
-Adding Frame in the mix will avoid browser hang, and the response objects will be stored in the same order as the request objects. 
-	
-	var responses = [];
-	for(var i=0; i<1000; i++){
-		Frame(function(callback){
-			$.ajax('myserver.api', { 
-				data:i, 
-				type:'post', 
-				complete:function(response) { 
-					responses.push(response);
-					callback();
-				}
-			});
-		});
-	}
-	Frame.start();
-
-
-FAQ: Why is Frame better than require.js?
-----------------
-
-Require.js is a thorough library loader but, it does not deal with the callback problem.
-
-Consider this script using require.js:
-
-	var id = 123;
-	require(["page.js", "nav.js"], function() {
-		$.ajax({
-			url:'authenticate.api',
-			data: id,
-			success: function(ajaxResponse){
-				require(ajaxResponse.responseText.userRole, function(userModule){
-					userModule.drawUser(function(){ // yet another callback
-						// do more stuff after user is drawn (notice the indent level)
-					});
-				});
-			}
-		});
-	});
-
-Compared to a similar thing in Frame.js:
-
-	var id = 123;
-	var userRole = '';
-	var exports = [];
-	Frame.lib(["page.js", "nav.js"]);
-	Frame(function(next){
-		$.ajax({
-			url:'authenticate.api',
-			data: id,
-			success: next
-		});
-	});
-	Frame(function(next, ajaxResponse){
-		userRole = ajaxResponse.responseText.userRole;
-	});
-	Frame(function(){
-		Frame(userRole + '.js'); // a path to some js file named the same as the user role
-		Frame(function(next){
-			// someRole.js would have to add an object to exports with the same name as the file
-			exports[userRole].drawUser(next); 
-		});
-	});
-	Frame.later(function(next){
-		// do more stuff after user is drawn (notice the indent level)
-	});
-
-The Frame version is more readable and modular in that it is easier to add to and take away pieces. The require.js version is simply not scalable in that the more callbacks you have, the more difficult the code becomes to read and use.
-
-Require.js is great, except that it offers no support for performance management between modules. While callback functions always follow the library being loaded, two modules can both be resource intensive and they will both continue to try and run full-force at the same time.
-
-Frame on the other hand offers a way of managing all the javascript running on a given page. Certianly a poorly written script can run wildly out of control in either, but Frame has specific ways to identify and deal with performance problems across the entire application. Frame creates a function buffer that run above Javascript's builtin function stack, and provides much better management than the browser or require.js.
+	 
+	// ajax.js, a module is defined using Frame
+	(function(){
+	    var module = Frame('ajax').start();
+	    module(['jquery', 'underscore', 'typecast', 'app.data'], 
+	        function(done, $, _, type, appData){
+	         
+	        log('setting ajax');
+	        module.context($.ajax); // setting the value of 'this'
+	        done();
+	    });
+	    return module;
+	})();
+	 
+	// application.js, inside the 'app' Frame, the 'ajax' Frame is accessed
+	Frame('app', ['ajax'], // ensure that 'ajax' module has been loaded
+	    function(done){
+	        Frame('ajax', function(cb){ // add to the 'ajax' Frame
+	            log(this); // === $.ajax
+	            cb();
+	        });
+	        done();
+	    }
+	).start();
+	 
 
 
-FAQ: How is Frame different than $(document).ready() and $().queue()?
-----------------
+Function by Function Documentation
+------------
 
-JQuery's document queue is non-blocking. It does not wait for callbacks. Frame on the other hand, is designed to handle multiple *asynchronous* events such as AJAX requests, sequenced multi-element DOM updates and sophisticated HTML animation.
+##### Frame( string, [functional unit, ...] )
 
-Frame is very close to jQuery's $.queue in usage and purpose, but different in several specific ways. Better error handling, automatic queue recovery on script failures, and built-in unit testing mechanisms are a few examples.
+Returns: thread object
+Description: create a new thread, also defined as a module name with require
+
+string: the name of the new thread
+
+functional unit: (optional) any number of functional units to add to the thread
 
 
-A Note about Naming
-----------------
+### Functional Units
+Frame uses functional units. Functional units can be a function, a string or an array.
 
-A capitalized first letter in Javascript often indicates a class rather than an object. While Frame is an object, it works much like a class because it is a factory object. Frame can play an important enough role in JS application design that we elected for the name Frame() rather than frame(). 
+string: the name of a module to load using require()
+
+object: some data to pass on to the next unit
+
+function: a function that receives a callback function as the first argument. the callback function must be called for the thread to continue.
+array: an array of strings or functions to run in parallel (multiple array levels are not supported and get collapsed to a single array)
 
 
-License
-----------------
-LAB.js (LABjs :: Loading And Blocking JavaScript)
-v2.0.3 (c) Kyle Simpson
-MIT License, Creative Commons BY-SA 3.0  
-http://creativecommons.org/licenses/by-sa/3.0/nl/
+### Thread Objects
+all thread objects return a reference to the thread so that they can be chained together.
 
-Frame.js (Javascript Job Manager)
-v1.0 (c) Bishop Zareh
-MIT License, Creative Commons BY-SA 3.0  
-http://creativecommons.org/licenses/by-sa/3.0/nl/
+##### thread( functional unit [, ...] )
 
+Description: one or more new functional units to add to the thread
+
+##### thread.add( functional unit [, ...] )
+
+Description: same as thread()
+
+##### thread.start(), thread.stop()
+
+Description: start and stop a particular thread. Stopping a thread does not mark it for deletion. 
+
+##### thread.context( value )
+
+Description: set both the value of "this" inside future functional units, and set the return value of the module's definition in require()
+
+##### thread.animation( boolean )
+
+Default: true
+
+Description: set to false if this thread should not be throttled by requestAnimationFrame
+
+##### thread.feature( string )
+
+Description: require a browser feature necessary for the thread to continue. the string can be the name of any class that Modernizr places on the HTML tag. if that class/feature is not present the thread is halted and marked for deletion.
+
+### Helpers & Settings
+
+##### Frame.report()
+
+Returns: an object containing a copy of the currently active threads
+
+##### Frame.fps( number )
+
+Default: 60
+
+Description: sets the times per second that Frame restarts threads that are ready
+
+##### Frame.concurrency( number ) 
+
+Default: 12
+
+Description: the number of simultaneous threads to run
+
+##### Frame.stop(), Frame.start()
+
+Description: start and stop Frame entirely
+
+##### Frame.clean()
+
+Description: delete any threads that have been marked for deletion. must be called manually.
