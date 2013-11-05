@@ -1,3 +1,16 @@
+Frame 2.0
+==============
+
+Website: http://framejs.tumblr.com
+
+Distributed with the MIT License, Written by Bishop Zareh
+
+Built as an AMD Module
+
+Requires: require.js, underscore.js, and typecast.js
+
+
+
 Version History
 ============
 
@@ -10,7 +23,7 @@ Nov 5th, 2013 - Version 2.0
 - Added "tail-call optimization" to prevent increased call stacks sizes.
 - Replaced LAB.js with Require.js and made Frame fully AMD-compliant
 - Removed all console masking including Frame.log() and Frame.title() for increased compatibility and better separation of concerns.
-- Added the ability to load CSS and TEXT files inline.
+- Added the ability to load CSS and TEXT files inline. (if they the plugins are loaded in require.js)
 - Added ability to run any set of functions in parallel as well as series.
 - Prevented callback functions from being called twice.
 - Removed frame delay functionality.
