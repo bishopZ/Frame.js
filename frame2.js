@@ -171,7 +171,7 @@ define('Frame',
 		if (isName && isExists) { return ThreadLibrary[name].facade; };
 		if (isName && !isExists) { return ThreadFactory(name); }
 
-		var que,
+		var qued,
 			args = _.rest(arguments); // all except the first
 		
 		if (!isExists) { qued = ThreadFactory(name); }
